@@ -965,7 +965,7 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
 
 #ifdef AUDIO_INTERFACE
 
-  #define AUDIO_SUBSLOT_SIZE 3 //size of an audio sample in bytes (possible values: 1,2,3 or 4)
+  #define AUDIO_SUBSLOT_SIZE 2 //size of an audio sample in bytes (possible values: 1,2,3 or 4)
   #define AUDIO_BITRESOLUTION (8*AUDIO_SUBSLOT_SIZE)
   
   #define USB_AUDIO_CHANNEL_FL  (1<<0)
