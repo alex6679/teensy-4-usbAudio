@@ -37,7 +37,7 @@ void loop() {
   Serial.println(usb1.getRequestedSamplingFrequ());
   delay(200);
 #endif
-#ifdef PLOT_USBINPUT_STATUS
+#ifdef PRINT_USBINPUT_STATUS
   AudioInputUSB::Status status = usb1.getStatus();
   Serial.print("buffer overrun: ");
   Serial.println(status.usb_audio_overrun_count);
