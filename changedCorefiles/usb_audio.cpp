@@ -768,7 +768,7 @@ unsigned int usb_audio_transmit_callback(void)
 		float lastIsrSmooth = (float)lastCallTransmitIsr.getLastCall<2>(historyIsr, expectedIsrIntervalCycles);
 		float timeSinceLastUpdate = (float)toUInt32Range(lastIsrSmooth - AudioOutputUSB::updateCurrentSmooth);
 		timeSinceLastUpdate /= F_CPU_ACTUAL; //to seconds
-		if (timeSinceLastUpdate > 1.5f*blockDuration || timeSinceLastUpdate < -1.5f*blockDuration){
+		if (timeSinceLastUpdate > 1.5f*blockDuration || timeSinceLastUpdate < -0.5f*blockDuration){
 			timeSinceLastUpdate =0.5f*blockDuration;
 		}		
 		virtualSamples =timeSinceLastUpdate * AUDIO_SAMPLE_RATE;
