@@ -4,8 +4,8 @@
 //#include <util/usbHostRequestBuffer.h>  only used for debugging the initialization
 
 //activate one of the four options
-#define PLOT_SIGNAL               //use Arduino Serial Plotter
-//#define PLOT_BUFFER             //use Arduino Serial Plotter
+//#define PLOT_SIGNAL               //use Arduino Serial Plotter
+#define PLOT_BUFFER             //use Arduino Serial Plotter
 //#define PLOT_REQUEST_FRREQ      //use Arduino Serial Plotter
 //#define PRINT_USBINPUT_STATUS   //prints information like number of buffer over and underruns
 
@@ -13,7 +13,7 @@ AudioInputUSB            usb1;
 AudioOutputI2S           i2s1;          
 Plotter                  plotter(4);  //only plot every 4th sample
 AudioConnection          patchCord1(usb1, 0, plotter, 0);
-AudioConnection          patchCord2(usb1, 7, plotter, 1);
+AudioConnection          patchCord2(usb1, 2, plotter, 1);
 
 void setup() {                
   AudioMemory(50);
@@ -34,7 +34,7 @@ void loop() {
   delay(200);
 #endif
 #ifdef PLOT_REQUEST_FRREQ
-  Serial.println(usb1.getRequestedSamplingFrequ());
+  Serial.println(usb1.getRequestedSamplingFrequ(),4);
   delay(200);
 #endif
 #ifdef PRINT_USBINPUT_STATUS
