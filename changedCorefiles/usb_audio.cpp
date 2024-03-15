@@ -354,7 +354,7 @@ void AudioInputUSB::resetBuffer(double updateCurrentSmooth){
 		double lastIsrSmooth = lastCallReceiveIsr.getLastCall<2>(historyIsr, expectedIsrIntervalCycles);
 		timeSinceLastUSBPaket = toUInt32Range(updateCurrentSmooth - lastIsrSmooth);
 		timeSinceLastUSBPaket /= F_CPU_ACTUAL; //to seconds
-		if(timeSinceLastUSBPaket > 0.5f*blockDuration || timeSinceLastUSBPaket < 0.f){
+		if(timeSinceLastUSBPaket > 1.5f*audioPollingIntervalSec || timeSinceLastUSBPaket < -0.5f){
 			//normally this should not happen
 			timeSinceLastUSBPaket = 0.5f*blockDuration;
 		}
@@ -428,12 +428,15 @@ void AudioInputUSB::update(void)
 			rxBufferReady=true;
 			rxBufferOverrun=false;
 			bufferUnderflow=false;
+			ic = rxIncoming_count;
+			iIdx = incoming_rx_bIdx;
 			//we do not update c here, since it should be consistent with historyIsr
 			__enable_irq();
 		}
 		else {	
 			//can only happen if we run out of audio blocks/memory		
 			_streaming=false;
+			rxMemoryUnderrunCounter++;
 		}
 	}
 	//=======================================

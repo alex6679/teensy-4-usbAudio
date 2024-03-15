@@ -72,7 +72,7 @@ public:
 		uint32_t usb_audio_overrun_count;
 		uint32_t audio_memory_underrun_count;
 		float target_num_buffered_samples;
-		uint16_t num_transmitted_channels;
+		uint16_t num_transmitted_channels;		//might be smaller than expected in case the 12Mbit/s bandwidth limits the number of channels
 		uint16_t ring_buffer_size;
 		uint16_t usb_rx_tx_buffer_size;
 		uint16_t bInterval_uS;
