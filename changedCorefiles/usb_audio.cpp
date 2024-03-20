@@ -502,7 +502,6 @@ namespace {
 	volatile uint16_t transmit_tx_bIdx=0;			//changed in usb_audio_transmit_callback
 	volatile AudioOutputUSB::BufferState txBufferState = AudioOutputUSB::ready;			//0: buffer can be used, 1: buffer is full, 2: buffer overrun changed in usb_audio_transmit_callback	
 	volatile float bufferedTxSamples=0.f;			//changed in usb_audio_transmit_callback
-	volatile float virtualSamples=0.f;			//changed in usb_audio_transmit_callback
 	volatile float bufferedTxSamplesSmooth=0.f;		//changed in usb_audio_transmit_callback
 	volatile uint8_t transmit_flag;					//changed in usb_audio_transmit_callback
 
@@ -535,7 +534,8 @@ namespace {
 	}
 	
 	void updateDevCounter(float bufferDiff, uint32_t& devCounter, int8_t& sign){
-		if (bufferDiff > 2){
+		const float thrs =2.f;	//acts as hysteresis, small deviations of targeted number of samples in the buffer are ignored
+		if (bufferDiff > thrs){
 			if(sign != 1){
 				devCounter=1;
 				sign=1;
@@ -544,7 +544,7 @@ namespace {
 				devCounter++;
 			}
 		}
-		else if (bufferDiff < -2){
+		else if (bufferDiff < -thrs){
 			if(sign != -1){
 				devCounter=1;
 				sign =-1;
@@ -555,7 +555,27 @@ namespace {
 		}
 	}
 
+	void updateBufferOffset(int8_t sign, uint32_t& devCounter, uint16_t& offset){
+		if(sign == -1 && offset > 0){
+			devCounter=0;
+			num_padded_Samples++;
+			//one sample is transmitted twice
+			offset--;
+		}
+		else if(sign ==1 && offset < AUDIO_BLOCK_SAMPLES){
+			devCounter=0;
+			num_skipped_Samples++;
+			//we skip one sample in the buffer
+			offset++;
+		}
+	}
+
 	uint32_t getTransmissionTarget(){
+		//Depending on the sampling frequency and the bInterval, we compute the number of samples that need to be transmitted.
+		//at 44.1 kHz and 1ms bInterval this function returns 9 times 44 samples and then 45 samples
+		//at e.g. 188.4 kHz and 1ms bInterval the output is more 'complex': three times 188, once 189, two times 188, once 189,... cycle starts again 
+		//This function does not take into account the current number of buffered samples, i.e. it does not change the target number of samples
+		//in order to prevnt buffer over- and underruns
 		static uint32_t count=0;
 		static uint32_t correction =0;
 		//compute how many samples we have to transmit ===============
@@ -687,11 +707,11 @@ void AudioOutputUSB::update(void)
 		num_padded_Samples=0;
 		txUsb_audio_underrun_count=0;
 		txUsb_audio_overrun_count=0;
-		return;
+		bufferedTxSamplesSmooth=0.f;
+		bufferedTxSamples=0.f;
 	}
 	if(s == overrun){
 		txUsb_audio_overrun_count++;
-		return;
 	}
 
 	for (uint16_t i =0; i< noTransmittedChannels; i++){
@@ -749,19 +769,24 @@ float AudioOutputUSB::getBufferedSamplesSmooth() const{
 // no data to transmit
 unsigned int usb_audio_transmit_callback(void)
 {
+	//time measurement (needed for the computation of virtual samples)
 	uint32_t current =ARM_DWT_CYCCNT;
 	lastCallTransmitIsr.addCall(current);
+	//================================================================
+	bool streamStarted = !transmit_flag;
 	transmit_flag =1;
-	//compute the number of samples we want to transmit (at 44.1kHz that is either 44 or 45 samples)
+
+	//compute the number of samples we want to transmit (at 44.1kHz and a bInterval of 1ms that is either 44 or 45 samples)
 	uint32_t target = getTransmissionTarget();
 	
 	const uint16_t iBIdx = incoming_tx_bIdx;	//we are not allowed to change incoming_tx_bIdx 
 	uint16_t tBIdx = transmit_tx_bIdx;
 	uint16_t offset = AudioOutputUSB::outgoing_count;
 	//============================================================
-	static uint32_t devCounter=0;
-	static int8_t sign =0;
-	virtualSamples =0.f;
+	const uint32_t devCounterThrs =10;
+	static uint32_t devCounter=0;	//how often in a row there were too many or too few samples, if counter reaches 'devCounterThrs', we take some action
+	static int8_t sign =0;			//-1... too few samples in the buffer, 0... state not known, 1... too many samples in the buffer
+	float virtualSamples =0.f;
 	if(AudioOutputUSB::updateCurrentSmooth !=-1.){
 		
 		History<7> historyIsr = lastCallTransmitIsr.getHistory();
@@ -790,7 +815,7 @@ unsigned int usb_audio_transmit_callback(void)
 		updateDevCounter(bufferedTxSamplesSmooth -targetNumTxBufferedSamples, devCounter, sign);		
 	}
 	
-	if(txBufferState == AudioOutputUSB::overrun){
+	if(txBufferState == AudioOutputUSB::overrun || streamStarted){
 		devCounter=0;
 		resetTransmissionIndex(virtualSamples, iBIdx, tBIdx, offset);		
 		for (uint16_t idx =0; idx < ringTxBufferSize; idx++){		
@@ -812,7 +837,7 @@ unsigned int usb_audio_transmit_callback(void)
 			//Something went wrong. We either did not receive a block, or a buffer underrun occured.
 			//We will reset the buffer indices and offsets and transmit zeros.
 			if( avail==0){
-				devCounter=0;	//only reset in case of an underrun
+				devCounter=0;	//only reset in case of an underrun and not if AudioOutputUSB did not receive data in 'update'
 				txUsb_audio_underrun_count++;
 				resetTransmissionIndex(virtualSamples, iBIdx, tBIdx, offset);		
 				for (uint16_t idx =0; idx < ringTxBufferSize; idx++){
@@ -828,24 +853,10 @@ unsigned int usb_audio_transmit_callback(void)
 		data += num*noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
 		len+=num;
 		offset+=num;
-		if(devCounter == 10){
-			if(sign == -1 && offset > 0){
-				devCounter=0;
-				num_padded_Samples++;
-				offset--;
-			}
+		if(devCounter == devCounterThrs){
+			updateBufferOffset(sign, devCounter, offset);
 		}
 		if (offset >= AUDIO_BLOCK_SAMPLES) {
-			AudioOutputUSB::tryIncreaseIdxTransmission(tBIdx,offset);
-		}
-	}
-
-	if(devCounter == 10 && sign ==1 && offset < AUDIO_BLOCK_SAMPLES){
-		devCounter=0;
-		num_skipped_Samples++;
-		//we remove one sample from the buffer
-		offset++;
-		if (offset == AUDIO_BLOCK_SAMPLES) {
 			AudioOutputUSB::tryIncreaseIdxTransmission(tBIdx,offset);
 		}
 	}
