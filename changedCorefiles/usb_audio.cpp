@@ -616,9 +616,9 @@ namespace {
 	}
 	
 	void resetTransmissionIndex(float virtualSamples, uint16_t incomingIdx, uint16_t& idx, uint16_t& count){
-		uint16_t targetNoSamples =uint16_t(targetNumTxBufferedSamples-virtualSamples  + 0.f);
-		uint16_t targetNumTxBufferedBlocks = uint16_t((targetNoSamples+noSamplesPerPollingInterval)/AUDIO_BLOCK_SAMPLES);	//+noSamplesPerPollingInterval because we will immediatelly transmit 'noSamplesPerPollingInterval' samples
-		count = AUDIO_BLOCK_SAMPLES-(uint16_t(targetNoSamples+noSamplesPerPollingInterval)-targetNumTxBufferedBlocks*AUDIO_BLOCK_SAMPLES);
+		uint16_t targetNoSamples =uint16_t(targetNumTxBufferedSamples+noSamplesPerPollingInterval-virtualSamples  + 0.f);	//+noSamplesPerPollingInterval because we will immediatelly transmit 'noSamplesPerPollingInterval' samples
+		uint16_t targetNumTxBufferedBlocks = uint16_t(targetNoSamples/AUDIO_BLOCK_SAMPLES);
+		count = AUDIO_BLOCK_SAMPLES-(targetNoSamples-targetNumTxBufferedBlocks*AUDIO_BLOCK_SAMPLES);
 		idx = (incomingIdx -(targetNumTxBufferedBlocks+1)+ringTxBufferSize)%ringTxBufferSize;
 	}
 }
@@ -851,9 +851,6 @@ unsigned int usb_audio_transmit_callback(void)
 	while (len < target) {
 		uint32_t num = target - len;
 		uint32_t avail = AUDIO_BLOCK_SAMPLES - offset;
-		if (num > avail){
-			num = avail;
-		}
 		if( avail==0 ||	txBuffer[tBIdx][0]==NULL){
 			//Something went wrong. We either did not receive a block, or a buffer underrun occured.
 			//We will reset the buffer indices and offsets and transmit zeros.
@@ -869,6 +866,9 @@ unsigned int usb_audio_transmit_callback(void)
 			memset(data, 0, numBytes);
 		}
 		else {
+			if (num > avail){
+				num = avail;
+			}
 			copy_from_buffers(data, txBuffer[tBIdx], offset, num);
 		}
 		data += num*noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
