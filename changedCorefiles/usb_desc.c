@@ -1641,7 +1641,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE_480] = {
 	7, 					// bLength
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
 	AUDIO_TX_ENDPOINT | 0x80,			// bEndpointAddress (0x80 = 10000000 -> audio source)
-	0x09, 					// bmAttributes = isochronous, adaptive
+	0x05, 					// bmAttributes, 0x09 = isochronous, adaptive, 0x05 = isochronous, asynchronous   
 	LSB(AUDIO_TX_SIZE_480), MSB(AUDIO_TX_SIZE_480),	// wMaxPacketSize
 	AUDIO_POLLING_INTERVAL_480,			 	// bInterval, 4 -> 2^(4-1)=8 -> every 8 micro-frames
 //removed		0,					// bRefresh
@@ -2788,7 +2788,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE_12] = {
 	7, 					// bLength
 	5, 					// bDescriptorType, 5 = ENDPOINT_DESCRIPTOR
 	AUDIO_TX_ENDPOINT | 0x80,			// bEndpointAddress (0x80 = 10000000 -> audio source)
-	0x09, 					// bmAttributes = isochronous, adaptive
+	0x05, 					// bmAttributes, 0x09 = isochronous, adaptive, 0x05 = isochronous, asynchronous  
 	LSB(AUDIO_TX_SIZE_12), MSB(AUDIO_TX_SIZE_12),	// wMaxPacketSize
 	AUDIO_POLLING_INTERVAL_12,			 	// bInterval, 4 -> 2^(4-1)=8 -> every 8 micro-frames
 //removed		0,					// bRefresh

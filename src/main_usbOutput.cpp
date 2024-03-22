@@ -3,8 +3,8 @@
 //#include <util/usbHostRequestBuffer.h>  only used for debugging the initialization
 
 //activate one of the two options
-//#define PLOT_BUFFER             //use Arduino Serial Plotter
-#define PRINT_USBOUTPUT_STATUS   //prints information like number of buffer over and underruns
+#define PLOT_BUFFER             //use Arduino Serial Plotter
+//#define PRINT_USBOUTPUT_STATUS   //prints information like number of buffer over and underruns
 
 AudioSynthWaveform       audioSynth0;
 AudioSynthWaveform       audioSynth1;
@@ -74,6 +74,8 @@ void loop() {
     Serial.println(status.num_padded_Samples);
     Serial.print("num_skipped_Samples : ");
     Serial.println(status.num_skipped_Samples);
+    Serial.print("max memory: ");
+    Serial.println((AudioMemoryUsageMax()));
     delay(1000);
 #endif
 }

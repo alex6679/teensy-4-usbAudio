@@ -504,6 +504,7 @@ namespace {
 	volatile float bufferedTxSamples=0.f;			//changed in usb_audio_transmit_callback
 	volatile float bufferedTxSamplesSmooth=0.f;		//changed in usb_audio_transmit_callback
 	volatile uint8_t transmit_flag;					//changed in usb_audio_transmit_callback
+	volatile bool streamStart=true;					//changed in usb_audio_transmit_callback
 
 	volatile uint32_t txUsb_audio_underrun_count =0;
 	volatile uint32_t txUsb_audio_overrun_count =0;
@@ -552,6 +553,21 @@ namespace {
 			else {
 				devCounter++;
 			}
+		}
+	}
+
+	void updateTarget(int8_t sign, uint32_t& devCounter, uint32_t& target){
+		if(sign == -1){
+			devCounter=0;
+			num_padded_Samples++;
+			//we run out of samples -> slow transmission down
+            target--;
+		}
+		else if(sign ==1){
+			devCounter=0;
+			num_skipped_Samples++;
+			//we run out of buffer space -> speed transmission down
+			target++;
 		}
 	}
 
@@ -691,6 +707,7 @@ void AudioOutputUSB::update(void)
 	//=======================================
 	
 	__disable_irq();
+		streamStart=transmit_flag && !_streaming;	
 		_streaming=transmit_flag != 0;		
 		transmit_flag =0;
 		if(txBufferState < overrun && incoming_tx_bIdx == transmit_tx_bIdx){
@@ -769,11 +786,11 @@ float AudioOutputUSB::getBufferedSamplesSmooth() const{
 // no data to transmit
 unsigned int usb_audio_transmit_callback(void)
 {
+    const bool async=true; // if true, the output behaves like an asynchronous endpoint, and like an adaptive one otherwise
 	//time measurement (needed for the computation of virtual samples)
 	uint32_t current =ARM_DWT_CYCCNT;
 	lastCallTransmitIsr.addCall(current);
 	//================================================================
-	bool streamStarted = !transmit_flag;
 	transmit_flag =1;
 
 	//compute the number of samples we want to transmit (at 44.1kHz and a bInterval of 1ms that is either 44 or 45 samples)
@@ -815,7 +832,8 @@ unsigned int usb_audio_transmit_callback(void)
 		updateDevCounter(bufferedTxSamplesSmooth -targetNumTxBufferedSamples, devCounter, sign);		
 	}
 	
-	if(txBufferState == AudioOutputUSB::overrun || streamStarted){
+	if(txBufferState == AudioOutputUSB::overrun || streamStart){
+		streamStart=false;
 		devCounter=0;
 		resetTransmissionIndex(virtualSamples, iBIdx, tBIdx, offset);		
 		for (uint16_t idx =0; idx < ringTxBufferSize; idx++){		
@@ -823,7 +841,10 @@ unsigned int usb_audio_transmit_callback(void)
 		}
 		txBufferState=AudioOutputUSB::ready;
 	}
-	
+    
+    if(async && devCounter == devCounterThrs){
+        updateTarget(sign, devCounter, target);
+    }	
 	
 	uint32_t len=0;
 	uint8_t *data = usb_audio_transmit_buffer;
@@ -853,7 +874,7 @@ unsigned int usb_audio_transmit_callback(void)
 		data += num*noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
 		len+=num;
 		offset+=num;
-		if(devCounter == devCounterThrs){
+		if(!async && devCounter == devCounterThrs){
 			updateBufferOffset(sign, devCounter, offset);
 		}
 		if (offset >= AUDIO_BLOCK_SAMPLES) {
