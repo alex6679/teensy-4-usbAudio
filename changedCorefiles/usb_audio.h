@@ -79,8 +79,9 @@ public:
 		bool receivingData;
 	};
 
-	AudioInputUSB(float kp =400.f,float ki =.2f ) :
-	AudioStream(0, NULL), _kp(kp), _ki(ki) { begin(); }
+	AudioInputUSB(float kp =400.f,float ki =.2f ) 
+		: AudioStream(0, NULL), _kp(kp), _ki(ki) 
+		{ begin(); }
 	virtual void update(void);
 	void begin(void);
 	float getBufferedSamples() const;
@@ -111,6 +112,17 @@ private:
 	static void releaseBlocks(uint16_t bufferIdx);
 };
 
+#if USB_AUDIO_NO_CHANNELS_480 >= 4
+class AudioInputUSBQuad : public AudioInputUSB { public: AudioInputUSBQuad(float kp =400.f,float ki =.2f) : AudioInputUSB(kp, ki) {} };
+#if USB_AUDIO_NO_CHANNELS_480 >= 6
+class AudioInputUSBHex : public AudioInputUSB { public: AudioInputUSBHex(float kp =400.f,float ki =.2f) : AudioInputUSB(kp, ki) {} };
+#if USB_AUDIO_NO_CHANNELS_480 >= 8
+class AudioInputUSBOct : public AudioInputUSB { public: AudioInputUSBOct(float kp =400.f,float ki =.2f) : AudioInputUSB(kp, ki) {} };
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 8
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 6
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 4
+
+
 #define TARGET_TX_BUFFER_TIME_S 0.0035f	//targeted buffered time (latency) in seconds
 class AudioOutputUSB : public AudioStream
 {
@@ -129,6 +141,7 @@ public:
 		bool transmittingData;
 	};
 	AudioOutputUSB(void) : AudioStream(USB_AUDIO_MAX_NO_CHANNELS, inputQueueArray) { begin(); }
+	AudioOutputUSB(int nch) : AudioStream(nch, inputQueueArray) { begin(); }
 	virtual void update(void);
 	void begin(void);
 	friend unsigned int usb_audio_transmit_callback(void);
@@ -146,6 +159,17 @@ private:
 	static uint16_t outgoing_count;
 	audio_block_t *inputQueueArray[USB_AUDIO_MAX_NO_CHANNELS];
 };
+
+#if USB_AUDIO_NO_CHANNELS_480 >= 4
+class AudioOutputUSBQuad : public AudioOutputUSB { public: AudioOutputUSBQuad(void) : AudioOutputUSB(4) {} };
+#if USB_AUDIO_NO_CHANNELS_480 >= 6
+class AudioOutputUSBHex : public AudioOutputUSB { public: AudioOutputUSBHex(void) : AudioOutputUSB(6) {} };
+#if USB_AUDIO_NO_CHANNELS_480 >= 8
+class AudioOutputUSBOct : public AudioOutputUSB { public: AudioOutputUSBOct(void) : AudioOutputUSB(8) {} };
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 8
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 6
+#endif // USB_AUDIO_NO_CHANNELS_480 >= 4
+
 #endif // __cplusplus
 
 #endif // AUDIO_INTERFACE

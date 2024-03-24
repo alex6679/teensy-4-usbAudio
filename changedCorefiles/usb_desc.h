@@ -978,7 +978,12 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
   #define USB_AUDIO_CHANNEL_SR  (1<<10)
   
   // defines for 480MBit ================================
-  #define USB_AUDIO_NO_CHANNELS_480 8
+  #if defined(AUDIO_USB_CHANNEL_COUNT) // channel count set on Tools menu...
+	#define USB_AUDIO_NO_CHANNELS_480 AUDIO_USB_CHANNEL_COUNT // ...use it
+  #else
+	#define USB_AUDIO_NO_CHANNELS_480 8 // ...or hand-edit it
+  #endif // defined(AUDIO_USB_CHANNEL_COUNT)
+  
   #if USB_AUDIO_NO_CHANNELS_480 == 2
       #define CHANNEL_CONFIG_480  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR)
   #endif
@@ -1017,7 +1022,35 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
   // end of defines for 480MBit ================================
 
   // defines for 12MBit ================================
-  #define USB_AUDIO_NO_CHANNELS_12 2
+  #if defined(AUDIO_USB_CHANNEL_COUNT) // channel count set on Tools menu...
+	#define USB_AUDIO_NO_CHANNELS_12 AUDIO_USB_CHANNEL_COUNT // ...use it
+  #else
+	#define USB_AUDIO_NO_CHANNELS_12 2 // ...or hand-edit it
+  #endif // defined(AUDIO_USB_CHANNEL_COUNT)
+  
+  // we can't receive more than 12MBit per second: if the bandwidth is larger than that, 
+  // either AUDIO_POLLING_INTERVAL_480 will just not be defined and the program won't compile,
+  // or we have to reduce the channel count.
+  #define BANDWIDTH_BYTES_PER_SEC_12 AUDIO_SAMPLE_RATE_I * AUDIO_SUBSLOT_SIZE * USB_AUDIO_NO_CHANNELS_12
+  #if BANDWIDTH_BYTES_PER_SEC_12 <= 1500000 //=12MBit
+    #if BANDWIDTH_BYTES_PER_SEC_12 > 1024000 *4 //more than 1024bytes/250us -> we need 8 micro frames per ms
+      #define AUDIO_POLLING_INTERVAL_12 1  //1 -> 2^(1-1)=1 -> every micro-frame
+    #elif BANDWIDTH_BYTES_PER_SEC_12 > 1024000 *2 //more than 1024bytes/500us -> we need 4 micro frames per ms
+      #define AUDIO_POLLING_INTERVAL_12 2  //2 -> 2^(2-1)=2 -> every 2 micro-frames
+    #elif BANDWIDTH_BYTES_PER_SEC_12 > 1024000 //more than 1024bytes/500us -> we need 2 micro frames per ms
+      #define AUDIO_POLLING_INTERVAL_12 3  //3 -> 2^(3-1)=4 -> every 4 micro-frames
+    #else
+      #define AUDIO_POLLING_INTERVAL_12 4  //4 -> 2^(4-1)=8 -> every 8 micro-frames
+    #endif
+  #else // lose some channels to get the bandwidth down: ony 8/96 is actually an issue at the moment
+    #undef USB_AUDIO_NO_CHANNELS_12
+	#undef BANDWIDTH_BYTES_PER_SEC_12
+	
+    #define USB_AUDIO_NO_CHANNELS_12 6
+    #define AUDIO_POLLING_INTERVAL_12 1  //1 -> 2^(1-1)=1 -> every micro-frame
+    #define BANDWIDTH_BYTES_PER_SEC_12 AUDIO_SAMPLE_RATE_I * AUDIO_SUBSLOT_SIZE * USB_AUDIO_NO_CHANNELS_12
+  #endif
+
   #if USB_AUDIO_NO_CHANNELS_12 == 2
       #define CHANNEL_CONFIG_12  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR)
   #endif
@@ -1029,20 +1062,6 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
   #endif
   #if USB_AUDIO_NO_CHANNELS_12 == 8
         #define CHANNEL_CONFIG_12  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_C | USB_AUDIO_CHANNEL_LFE | USB_AUDIO_CHANNEL_BL | USB_AUDIO_CHANNEL_BR | USB_AUDIO_CHANNEL_SL | USB_AUDIO_CHANNEL_SR)
-  #endif
-  #define BANDWIDTH_BYTES_PER_SEC_12 AUDIO_SAMPLE_RATE_I * AUDIO_SUBSLOT_SIZE * USB_AUDIO_NO_CHANNELS_12
-  #if BANDWIDTH_BYTES_PER_SEC_12 <= 1500000 //=12MBit
-    //we can don't wan't to receive more than 12MBit per second
-    //if the bandwidth is larger than that, AUDIO_POLLING_INTERVAL_480 will just not be defined and the program won't compile
-    #if BANDWIDTH_BYTES_PER_SEC_12 > 1024000 *4 //more than 1024bytes/250us -> we need 8 micro frames per ms
-      #define AUDIO_POLLING_INTERVAL_12 1  //1 -> 2^(1-1)=1 -> every micro-frame
-    #elif BANDWIDTH_BYTES_PER_SEC_12 > 1024000 *2 //more than 1024bytes/500us -> we need 4 micro frames per ms
-      #define AUDIO_POLLING_INTERVAL_12 2  //2 -> 2^(2-1)=2 -> every 2 micro-frames
-    #elif BANDWIDTH_BYTES_PER_SEC_12 > 1024000 //more than 1024bytes/500us -> we need 2 micro frames per ms
-      #define AUDIO_POLLING_INTERVAL_12 3  //3 -> 2^(3-1)=4 -> every 4 micro-frames
-    #else
-      #define AUDIO_POLLING_INTERVAL_12 4  //4 -> 2^(4-1)=8 -> every 8 micro-frames
-    #endif
   #endif
 
   #define AUDIO_NUM_SUBFRAMES_PER_POLLING_12 (1<<(AUDIO_POLLING_INTERVAL_12-1))
