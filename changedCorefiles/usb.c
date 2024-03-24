@@ -682,11 +682,13 @@ static void endpoint0_setup(uint64_t setupdata)
 					endpoint0_buffer[2] = (((uint32_t)AUDIO_SAMPLE_RATE) >> 16) & 255;
 					endpoint0_buffer[3] = 0;
 					endpoint0_transmit(endpoint0_buffer, 4, 0);
+					return;
 				}
 				if(setup.wValue == 0x0200){
 					//0x02...CS_CLOCK_VALID_CONTROL 0x00... channel must be set to 0
 					endpoint0_buffer[0] = 1; //always valid
 					endpoint0_transmit(endpoint0_buffer, 1, 0);
+					return;
 				}						
 			}
 	  case 0x02A1: //-> get RANGE request 
