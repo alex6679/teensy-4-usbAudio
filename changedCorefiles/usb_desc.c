@@ -1501,7 +1501,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE_480] = {
 	2,					// bTerminalID
 	0x01, 0x01,				// wTerminalType, 0x0101 = USB_STREAMING
 	0,					// bAssocTerminal, 0 = unidirectional
-	1,				      // bSourceID, connected to feature, ID=31
+	1,				      // bSourceID, connected to feature, ID=1
 	0x3a,					// bCSourceID
       0,0,					// bmControls
       0,					// iTerminal
@@ -2634,7 +2634,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE_12] = {
       (((CHANNEL_CONFIG_12) >> 16) & 255),// bmChannelConfig
       (((CHANNEL_CONFIG_12) >> 24) & 255),// bmChannelConfig
 	0x00,                         // iChannelNames
-      0x00, 0x00,				// bmControls     //Todo: does we need to set copy protect
+      0x00, 0x00,				// bmControls     //Todo: do we need to set copy protect
 	0, 					// iTerminal
       // Original
 	// Output Terminal Descriptor

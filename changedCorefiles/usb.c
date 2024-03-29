@@ -714,7 +714,8 @@ static void endpoint0_setup(uint64_t setupdata)
 			endpoint0_buffer[11]= 0;
 			endpoint0_buffer[12]= 0;
 			endpoint0_buffer[13]= 0;
-			endpoint0_transmit(endpoint0_buffer, 14, 0);
+			uint32_t l = setup.wLength < 14 ? setup.wLength : 14;
+			endpoint0_transmit(endpoint0_buffer, l, 0);
 			return;
 						
 		}
