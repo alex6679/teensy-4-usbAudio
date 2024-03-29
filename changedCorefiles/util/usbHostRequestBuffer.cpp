@@ -57,53 +57,70 @@ namespace {
 	} setup_t;
 }
 
-volatile uint32_t rBufferWIndex = 0;
+volatile int32_t rBufferWIndex = -1;
 uint64_t rBuffer[USB_REQUEST_BUFFER_LENGTH];
 volatile uint32_t stalledWIndex = 0;
 uint8_t stalled[USB_REQUEST_BUFFER_LENGTH];
 
 void addToRequestBuffer(uint64_t r){
-	if(rBufferWIndex < USB_REQUEST_BUFFER_LENGTH){
-		rBuffer[rBufferWIndex] = r;
-		rBufferWIndex++;
+	if (rBufferWIndex==-1){
+		rBufferWIndex=0;
 	}
+	rBuffer[rBufferWIndex] = r;
+	rBufferWIndex =(rBufferWIndex+1)%USB_REQUEST_BUFFER_LENGTH;	
 }
 void setStalled(uint8_t b, uint8_t predecessor){
 	uint32_t idx = (predecessor && stalledWIndex>0) ? stalledWIndex-1 : stalledWIndex;
 	if(idx < USB_REQUEST_BUFFER_LENGTH){
 		stalled[idx] = b;
-		if(!predecessor){
-			stalledWIndex++;
+		if(!predecessor){			
+			stalledWIndex =(stalledWIndex+1)%USB_REQUEST_BUFFER_LENGTH;	
 		}
 	}
 }
+void print(uint32_t index){
+	Serial.print(index);
+	Serial.print(": ");
+	setup_t s;
+	s.bothwords = rBuffer[index];
+	Serial.print("request and type: ");
+	Serial.print(s.wRequestAndType, HEX);
+	Serial.print(", bmRequestType: ");
+	Serial.print(s.bmRequestType, BIN);
+	Serial.print(", bRequest: ");
+	Serial.print(s.bRequest, HEX);
+	Serial.print(", wValue: ");
+	Serial.print(s.wValue, HEX);
+	Serial.print(", wIndex: ");
+	Serial.print(s.wIndex, HEX);
 
+	Serial.print(", was stalled: ");
+	Serial.println(stalled[index]);
+}
 void printRequestBuffer(){
 	uint32_t l = rBufferWIndex;
-	setup_t s;
 	for (uint32_t i =0; i< l; i++){
-		Serial.print(i);
-		Serial.print(": ");
-		s.bothwords = rBuffer[i];
-		Serial.print("request and type: ");
-		Serial.print(s.wRequestAndType, HEX);
-		Serial.print(", bmRequestType: ");
-		Serial.print(s.bmRequestType, BIN);
-		Serial.print(", bRequest: ");
-		Serial.print(s.bRequest, HEX);
-		Serial.print(", wValue: ");
-		Serial.print(s.wValue, HEX);
-		Serial.print(", wIndex: ");
-		Serial.print(s.wIndex, HEX);
-	
-		Serial.print(", was stalled: ");
-		Serial.println(stalled[i]);
-		
+		print(i);
 	}
+}
+
+int32_t printLastRequest(int32_t lastPrinted){
+	if (rBufferWIndex==-1){
+		return lastPrinted;
+	}
+	int32_t lastWriteIndex = (rBufferWIndex +USB_REQUEST_BUFFER_LENGTH-1)%USB_REQUEST_BUFFER_LENGTH;
+	if(lastPrinted != lastWriteIndex){
+		lastPrinted = lastWriteIndex;
+		if(Serial){
+			print(lastWriteIndex);
+		}
+	}
+	return lastPrinted;
 }
 
 #else
 void printRequestBuffer(){}
 void setStalled(uint8_t b, uint8_t predecessor){}
 void addToRequestBuffer(uint64_t r){}
+int32_t printLastRequest(int32_t lastPrinted){return lastPrinted;}
 #endif

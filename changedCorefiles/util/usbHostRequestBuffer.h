@@ -40,6 +40,7 @@ extern "C" {
 
 extern void addToRequestBuffer(uint64_t r);
 extern void setStalled(uint8_t b, uint8_t predecessor);
+extern int32_t printLastRequest(int32_t lastPrinted);
 
 #ifdef __cplusplus
 }
