@@ -774,7 +774,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_MIDI_AUDIO_SERIAL)
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x14B5
+  #define PRODUCT_ID		0x18B5
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
   #define PRODUCT_NAME		{'T','e','e','n','s','y',' ','M','I','D','I','/','A','u','d','i','o'}
@@ -793,7 +793,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_TX_SIZE_480       512
   #define CDC_RX_SIZE_12        64
   #define CDC_TX_SIZE_12        64
-  #define MIDI_INTERFACE        2	// MIDI
+  #define MIDI_INTERFACE        5	// MIDI
   #define MIDI_NUM_CABLES       1
   #define MIDI_TX_ENDPOINT      4
   #define MIDI_TX_SIZE_12       64
@@ -801,7 +801,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MIDI_RX_ENDPOINT      4
   #define MIDI_RX_SIZE_12       64
   #define MIDI_RX_SIZE_480      512
-  #define AUDIO_INTERFACE	3	// Audio (uses 3 consecutive interfaces)
+  #define AUDIO_INTERFACE	2	// Audio (uses 3 consecutive interfaces)
   #define AUDIO_TX_ENDPOINT     5
   #define AUDIO_RX_ENDPOINT     5
   #define AUDIO_SYNC_ENDPOINT	6

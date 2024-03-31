@@ -920,231 +920,6 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE_480] = {
         0,                                      // bInterval
 #endif // CDC3_DATA_INTERFACE
 
-#ifdef MIDI_INTERFACE
-	// configuration for 480 Mbit/sec speed
-        // Standard MS Interface Descriptor,
-        9,                                      // bLength
-        4,                                      // bDescriptorType
-        MIDI_INTERFACE,                         // bInterfaceNumber
-        0,                                      // bAlternateSetting
-        2,                                      // bNumEndpoints
-        0x01,                                   // bInterfaceClass (0x01 = Audio)
-        0x03,                                   // bInterfaceSubClass (0x03 = MIDI)
-        0x00,                                   // bInterfaceProtocol (unused for MIDI)
-        0,                                      // iInterface
-        // MIDI MS Interface Header, USB MIDI 6.1.2.1, page 21, Table 6-2
-        7,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x01,                                   // bDescriptorSubtype = MS_HEADER
-        0x00, 0x01,                             // bcdMSC = revision 01.00
-	LSB(7+(6+6+9+9)*MIDI_NUM_CABLES),       // wTotalLength
-	MSB(7+(6+6+9+9)*MIDI_NUM_CABLES),
-        // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
-        6,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
-        0x01,                                   // bJackType = EMBEDDED
-        1,                                      // bJackID, ID = 1
-        0,                                      // iJack
-        // MIDI IN Jack Descriptor, B.4.3, Table B-8 (external), page 40
-        6,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
-        0x02,                                   // bJackType = EXTERNAL
-        2,                                      // bJackID, ID = 2
-        0,                                      // iJack
-        // MIDI OUT Jack Descriptor, B.4.4, Table B-9, page 41
-        9,
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
-        0x01,                                   // bJackType = EMBEDDED
-        3,                                      // bJackID, ID = 3
-        1,                                      // bNrInputPins = 1 pin
-        2,                                      // BaSourceID(1) = 2
-        1,                                      // BaSourcePin(1) = first pin
-        0,                                      // iJack
-        // MIDI OUT Jack Descriptor, B.4.4, Table B-10, page 41
-        9,
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
-        0x02,                                   // bJackType = EXTERNAL
-        4,                                      // bJackID, ID = 4
-        1,                                      // bNrInputPins = 1 pin
-        1,                                      // BaSourceID(1) = 1
-        1,                                      // BaSourcePin(1) = first pin
-        0,                                      // iJack
-  #if MIDI_NUM_CABLES >= 2
-	#define MIDI_INTERFACE_JACK_PAIR(a, b, c, d) \
-		6, 0x24, 0x02, 0x01, (a), 0, \
-		6, 0x24, 0x02, 0x02, (b), 0, \
-		9, 0x24, 0x03, 0x01, (c), 1, (b), 1, 0, \
-		9, 0x24, 0x03, 0x02, (d), 1, (a), 1, 0,
-	MIDI_INTERFACE_JACK_PAIR(5, 6, 7, 8)
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-	MIDI_INTERFACE_JACK_PAIR(9, 10, 11, 12)
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-	MIDI_INTERFACE_JACK_PAIR(13, 14, 15, 16)
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-	MIDI_INTERFACE_JACK_PAIR(17, 18, 19, 20)
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-	MIDI_INTERFACE_JACK_PAIR(21, 22, 23, 24)
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-	MIDI_INTERFACE_JACK_PAIR(25, 26, 27, 28)
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-	MIDI_INTERFACE_JACK_PAIR(29, 30, 31, 32)
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-	MIDI_INTERFACE_JACK_PAIR(33, 34, 35, 36)
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-	MIDI_INTERFACE_JACK_PAIR(37, 38, 39, 40)
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-	MIDI_INTERFACE_JACK_PAIR(41, 42, 43, 44)
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-	MIDI_INTERFACE_JACK_PAIR(45, 46, 47, 48)
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-	MIDI_INTERFACE_JACK_PAIR(49, 50, 51, 52)
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-	MIDI_INTERFACE_JACK_PAIR(53, 54, 55, 56)
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-	MIDI_INTERFACE_JACK_PAIR(57, 58, 59, 60)
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-	MIDI_INTERFACE_JACK_PAIR(61, 62, 63, 64)
-  #endif
-        // Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, pae 42
-        9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT
-        MIDI_RX_ENDPOINT,                       // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk)
-        LSB(MIDI_RX_SIZE_480),MSB(MIDI_RX_SIZE_480),// wMaxPacketSize
-        0,                                      // bInterval
-        0,                                      // bRefresh
-        0,                                      // bSynchAddress
-        // Class-specific MS Bulk OUT Endpoint Descriptor, B.5.2, Table B-12, page 42
-        4+MIDI_NUM_CABLES,                      // bLength
-        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
-        0x01,                                   // bJackType = MS_GENERAL
-        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
-        1,                                      // BaAssocJackID(1) = jack ID #1
-  #if MIDI_NUM_CABLES >= 2
-        5,
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-        9,
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-        13,
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-        17,
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-        21,
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-        25,
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-        29,
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-        33,
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-        37,
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-        41,
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-        45,
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-        49,
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-        53,
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-        57,
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-        61,
-  #endif
-        // Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
-        9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT
-        MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk)
-        LSB(MIDI_TX_SIZE_480),MSB(MIDI_TX_SIZE_480),// wMaxPacketSize
-        0,                                      // bInterval
-        0,                                      // bRefresh
-        0,                                      // bSynchAddress
-        // Class-specific MS Bulk IN Endpoint Descriptor, B.5.2, Table B-12, page 42
-        4+MIDI_NUM_CABLES,                      // bLength
-        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
-        0x01,                                   // bJackType = MS_GENERAL
-        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
-        3,                                      // BaAssocJackID(1) = jack ID #3
-  #if MIDI_NUM_CABLES >= 2
-        7,
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-        11,
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-        15,
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-        19,
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-        23,
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-        27,
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-        31,
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-        35,
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-        39,
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-        43,
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-        47,
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-        51,
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-        55,
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-        59,
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-        63,
-  #endif
-#endif // MIDI_INTERFACE
-
 #ifdef KEYBOARD_INTERFACE
 	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
@@ -1421,7 +1196,11 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE_480] = {
         8,                                      // bLength
         11,                                     // bDescriptorType
         AUDIO_INTERFACE,                        // bFirstInterface
+#ifdef MIDI_INTERFACE
+        4,                                      // bInterfaceCount
+#else
         3,                                      // bInterfaceCount
+#endif
         0x01,                                   // bFunctionClass
         0x00,                                   // bFunctionSubClass, 0x00 = FUNCTION_SUBCLASS_UNDEFINED
         0x20,                                   // bFunctionProtocol 0x20 = IP_VERSION_02_00 = AF_VERSION_02_00
@@ -1764,6 +1543,232 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE_480] = {
 //removed	0,					// bSynchAddress
 #endif
 
+
+#ifdef MIDI_INTERFACE
+	// configuration for 480 Mbit/sec speed
+        // Standard MS Interface Descriptor,
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        MIDI_INTERFACE,                         // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        2,                                      // bNumEndpoints
+        0x01,                                   // bInterfaceClass (0x01 = Audio)
+        0x03,                                   // bInterfaceSubClass (0x03 = MIDI)
+        0x00,                                   // bInterfaceProtocol (unused for MIDI)
+        0,                                      // iInterface
+        // MIDI MS Interface Header, USB MIDI 6.1.2.1, page 21, Table 6-2
+        7,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x01,                                   // bDescriptorSubtype = MS_HEADER
+        0x00, 0x01,                             // bcdMSC = revision 01.00
+	LSB(7+(6+6+9+9)*MIDI_NUM_CABLES),       // wTotalLength
+	MSB(7+(6+6+9+9)*MIDI_NUM_CABLES),
+        // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
+        6,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
+        0x01,                                   // bJackType = EMBEDDED
+        1,                                      // bJackID, ID = 1
+        0,                                      // iJack
+        // MIDI IN Jack Descriptor, B.4.3, Table B-8 (external), page 40
+        6,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
+        0x02,                                   // bJackType = EXTERNAL
+        2,                                      // bJackID, ID = 2
+        0,                                      // iJack
+        // MIDI OUT Jack Descriptor, B.4.4, Table B-9, page 41
+        9,
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
+        0x01,                                   // bJackType = EMBEDDED
+        3,                                      // bJackID, ID = 3
+        1,                                      // bNrInputPins = 1 pin
+        2,                                      // BaSourceID(1) = 2
+        1,                                      // BaSourcePin(1) = first pin
+        0,                                      // iJack
+        // MIDI OUT Jack Descriptor, B.4.4, Table B-10, page 41
+        9,
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
+        0x02,                                   // bJackType = EXTERNAL
+        4,                                      // bJackID, ID = 4
+        1,                                      // bNrInputPins = 1 pin
+        1,                                      // BaSourceID(1) = 1
+        1,                                      // BaSourcePin(1) = first pin
+        0,                                      // iJack
+  #if MIDI_NUM_CABLES >= 2
+	#define MIDI_INTERFACE_JACK_PAIR(a, b, c, d) \
+		6, 0x24, 0x02, 0x01, (a), 0, \
+		6, 0x24, 0x02, 0x02, (b), 0, \
+		9, 0x24, 0x03, 0x01, (c), 1, (b), 1, 0, \
+		9, 0x24, 0x03, 0x02, (d), 1, (a), 1, 0,
+	MIDI_INTERFACE_JACK_PAIR(5, 6, 7, 8)
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+	MIDI_INTERFACE_JACK_PAIR(9, 10, 11, 12)
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+	MIDI_INTERFACE_JACK_PAIR(13, 14, 15, 16)
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+	MIDI_INTERFACE_JACK_PAIR(17, 18, 19, 20)
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+	MIDI_INTERFACE_JACK_PAIR(21, 22, 23, 24)
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+	MIDI_INTERFACE_JACK_PAIR(25, 26, 27, 28)
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+	MIDI_INTERFACE_JACK_PAIR(29, 30, 31, 32)
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+	MIDI_INTERFACE_JACK_PAIR(33, 34, 35, 36)
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+	MIDI_INTERFACE_JACK_PAIR(37, 38, 39, 40)
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+	MIDI_INTERFACE_JACK_PAIR(41, 42, 43, 44)
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+	MIDI_INTERFACE_JACK_PAIR(45, 46, 47, 48)
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+	MIDI_INTERFACE_JACK_PAIR(49, 50, 51, 52)
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+	MIDI_INTERFACE_JACK_PAIR(53, 54, 55, 56)
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+	MIDI_INTERFACE_JACK_PAIR(57, 58, 59, 60)
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+	MIDI_INTERFACE_JACK_PAIR(61, 62, 63, 64)
+  #endif
+        // Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, pae 42
+        9,                                      // bLength
+        5,                                      // bDescriptorType = ENDPOINT
+        MIDI_RX_ENDPOINT,                       // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        LSB(MIDI_RX_SIZE_480),MSB(MIDI_RX_SIZE_480),// wMaxPacketSize
+        0,                                      // bInterval
+        0,                                      // bRefresh
+        0,                                      // bSynchAddress
+        // Class-specific MS Bulk OUT Endpoint Descriptor, B.5.2, Table B-12, page 42
+        4+MIDI_NUM_CABLES,                      // bLength
+        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
+        0x01,                                   // bJackType = MS_GENERAL
+        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
+        1,                                      // BaAssocJackID(1) = jack ID #1
+  #if MIDI_NUM_CABLES >= 2
+        5,
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+        9,
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+        13,
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+        17,
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+        21,
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+        25,
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+        29,
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+        33,
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+        37,
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+        41,
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+        45,
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+        49,
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+        53,
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+        57,
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+        61,
+  #endif
+        // Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
+        9,                                      // bLength
+        5,                                      // bDescriptorType = ENDPOINT
+        MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        LSB(MIDI_TX_SIZE_480),MSB(MIDI_TX_SIZE_480),// wMaxPacketSize
+        0,                                      // bInterval
+        0,                                      // bRefresh
+        0,                                      // bSynchAddress
+        // Class-specific MS Bulk IN Endpoint Descriptor, B.5.2, Table B-12, page 42
+        4+MIDI_NUM_CABLES,                      // bLength
+        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
+        0x01,                                   // bJackType = MS_GENERAL
+        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
+        3,                                      // BaAssocJackID(1) = jack ID #3
+  #if MIDI_NUM_CABLES >= 2
+        7,
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+        11,
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+        15,
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+        19,
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+        23,
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+        27,
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+        31,
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+        35,
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+        39,
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+        43,
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+        47,
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+        51,
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+        55,
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+        59,
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+        63,
+  #endif
+#endif // MIDI_INTERFACE
+
 #ifdef MULTITOUCH_INTERFACE
 	// configuration for 480 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
@@ -2067,231 +2072,6 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE_12] = {
         0,                                      // bInterval
 #endif // CDC3_DATA_INTERFACE
 
-#ifdef MIDI_INTERFACE
-	// configuration for 12 Mbit/sec speed
-        // Standard MS Interface Descriptor,
-        9,                                      // bLength
-        4,                                      // bDescriptorType
-        MIDI_INTERFACE,                         // bInterfaceNumber
-        0,                                      // bAlternateSetting
-        2,                                      // bNumEndpoints
-        0x01,                                   // bInterfaceClass (0x01 = Audio)
-        0x03,                                   // bInterfaceSubClass (0x03 = MIDI)
-        0x00,                                   // bInterfaceProtocol (unused for MIDI)
-        0,                                      // iInterface
-        // MIDI MS Interface Header, USB MIDI 6.1.2.1, page 21, Table 6-2
-        7,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x01,                                   // bDescriptorSubtype = MS_HEADER
-        0x00, 0x01,                             // bcdMSC = revision 01.00
-	LSB(7+(6+6+9+9)*MIDI_NUM_CABLES),       // wTotalLength
-	MSB(7+(6+6+9+9)*MIDI_NUM_CABLES),
-        // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
-        6,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
-        0x01,                                   // bJackType = EMBEDDED
-        1,                                      // bJackID, ID = 1
-        0,                                      // iJack
-        // MIDI IN Jack Descriptor, B.4.3, Table B-8 (external), page 40
-        6,                                      // bLength
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
-        0x02,                                   // bJackType = EXTERNAL
-        2,                                      // bJackID, ID = 2
-        0,                                      // iJack
-        // MIDI OUT Jack Descriptor, B.4.4, Table B-9, page 41
-        9,
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
-        0x01,                                   // bJackType = EMBEDDED
-        3,                                      // bJackID, ID = 3
-        1,                                      // bNrInputPins = 1 pin
-        2,                                      // BaSourceID(1) = 2
-        1,                                      // BaSourcePin(1) = first pin
-        0,                                      // iJack
-        // MIDI OUT Jack Descriptor, B.4.4, Table B-10, page 41
-        9,
-        0x24,                                   // bDescriptorType = CS_INTERFACE
-        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
-        0x02,                                   // bJackType = EXTERNAL
-        4,                                      // bJackID, ID = 4
-        1,                                      // bNrInputPins = 1 pin
-        1,                                      // BaSourceID(1) = 1
-        1,                                      // BaSourcePin(1) = first pin
-        0,                                      // iJack
-  #if MIDI_NUM_CABLES >= 2
-	#define MIDI_INTERFACE_JACK_PAIR(a, b, c, d) \
-		6, 0x24, 0x02, 0x01, (a), 0, \
-		6, 0x24, 0x02, 0x02, (b), 0, \
-		9, 0x24, 0x03, 0x01, (c), 1, (b), 1, 0, \
-		9, 0x24, 0x03, 0x02, (d), 1, (a), 1, 0,
-	MIDI_INTERFACE_JACK_PAIR(5, 6, 7, 8)
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-	MIDI_INTERFACE_JACK_PAIR(9, 10, 11, 12)
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-	MIDI_INTERFACE_JACK_PAIR(13, 14, 15, 16)
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-	MIDI_INTERFACE_JACK_PAIR(17, 18, 19, 20)
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-	MIDI_INTERFACE_JACK_PAIR(21, 22, 23, 24)
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-	MIDI_INTERFACE_JACK_PAIR(25, 26, 27, 28)
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-	MIDI_INTERFACE_JACK_PAIR(29, 30, 31, 32)
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-	MIDI_INTERFACE_JACK_PAIR(33, 34, 35, 36)
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-	MIDI_INTERFACE_JACK_PAIR(37, 38, 39, 40)
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-	MIDI_INTERFACE_JACK_PAIR(41, 42, 43, 44)
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-	MIDI_INTERFACE_JACK_PAIR(45, 46, 47, 48)
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-	MIDI_INTERFACE_JACK_PAIR(49, 50, 51, 52)
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-	MIDI_INTERFACE_JACK_PAIR(53, 54, 55, 56)
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-	MIDI_INTERFACE_JACK_PAIR(57, 58, 59, 60)
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-	MIDI_INTERFACE_JACK_PAIR(61, 62, 63, 64)
-  #endif
-        // Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, pae 42
-        9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT
-        MIDI_RX_ENDPOINT,                       // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk)
-        LSB(MIDI_RX_SIZE_12),MSB(MIDI_RX_SIZE_12),// wMaxPacketSize
-        0,                                      // bInterval
-        0,                                      // bRefresh
-        0,                                      // bSynchAddress
-        // Class-specific MS Bulk OUT Endpoint Descriptor, B.5.2, Table B-12, page 42
-        4+MIDI_NUM_CABLES,                      // bLength
-        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
-        0x01,                                   // bJackType = MS_GENERAL
-        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
-        1,                                      // BaAssocJackID(1) = jack ID #1
-  #if MIDI_NUM_CABLES >= 2
-        5,
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-        9,
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-        13,
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-        17,
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-        21,
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-        25,
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-        29,
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-        33,
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-        37,
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-        41,
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-        45,
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-        49,
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-        53,
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-        57,
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-        61,
-  #endif
-        // Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
-        9,                                      // bLength
-        5,                                      // bDescriptorType = ENDPOINT
-        MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
-        0x02,                                   // bmAttributes (0x02=bulk)
-        LSB(MIDI_TX_SIZE_12),MSB(MIDI_TX_SIZE_12),// wMaxPacketSize
-        0,                                      // bInterval
-        0,                                      // bRefresh
-        0,                                      // bSynchAddress
-        // Class-specific MS Bulk IN Endpoint Descriptor, B.5.2, Table B-12, page 42
-        4+MIDI_NUM_CABLES,                      // bLength
-        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
-        0x01,                                   // bJackType = MS_GENERAL
-        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
-        3,                                      // BaAssocJackID(1) = jack ID #3
-  #if MIDI_NUM_CABLES >= 2
-        7,
-  #endif
-  #if MIDI_NUM_CABLES >= 3
-        11,
-  #endif
-  #if MIDI_NUM_CABLES >= 4
-        15,
-  #endif
-  #if MIDI_NUM_CABLES >= 5
-        19,
-  #endif
-  #if MIDI_NUM_CABLES >= 6
-        23,
-  #endif
-  #if MIDI_NUM_CABLES >= 7
-        27,
-  #endif
-  #if MIDI_NUM_CABLES >= 8
-        31,
-  #endif
-  #if MIDI_NUM_CABLES >= 9
-        35,
-  #endif
-  #if MIDI_NUM_CABLES >= 10
-        39,
-  #endif
-  #if MIDI_NUM_CABLES >= 11
-        43,
-  #endif
-  #if MIDI_NUM_CABLES >= 12
-        47,
-  #endif
-  #if MIDI_NUM_CABLES >= 13
-        51,
-  #endif
-  #if MIDI_NUM_CABLES >= 14
-        55,
-  #endif
-  #if MIDI_NUM_CABLES >= 15
-        59,
-  #endif
-  #if MIDI_NUM_CABLES >= 16
-        63,
-  #endif
-#endif // MIDI_INTERFACE
-
 #ifdef KEYBOARD_INTERFACE
 	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
@@ -2568,7 +2348,11 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE_12] = {
         8,                                      // bLength
         11,                                     // bDescriptorType
         AUDIO_INTERFACE,                        // bFirstInterface
+#ifdef MIDI_INTERFACE
+        4,                                      // bInterfaceCount
+#else
         3,                                      // bInterfaceCount
+#endif
         0x01,                                   // bFunctionClass
         0x00,                                   // bFunctionSubClass, 0x00 = FUNCTION_SUBCLASS_UNDEFINED
         0x20,                                   // bFunctionProtocol 0x20 = IP_VERSION_02_00 = AF_VERSION_02_00
@@ -2911,6 +2695,230 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE_12] = {
 //removed	0,					// bSynchAddress
 #endif
 
+#ifdef MIDI_INTERFACE
+	// configuration for 12 Mbit/sec speed
+        // Standard MS Interface Descriptor,
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        MIDI_INTERFACE,                         // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        2,                                      // bNumEndpoints
+        0x01,                                   // bInterfaceClass (0x01 = Audio)
+        0x03,                                   // bInterfaceSubClass (0x03 = MIDI)
+        0x00,                                   // bInterfaceProtocol (unused for MIDI)
+        0,                                      // iInterface
+        // MIDI MS Interface Header, USB MIDI 6.1.2.1, page 21, Table 6-2
+        7,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x01,                                   // bDescriptorSubtype = MS_HEADER
+        0x00, 0x01,                             // bcdMSC = revision 01.00
+	LSB(7+(6+6+9+9)*MIDI_NUM_CABLES),       // wTotalLength
+	MSB(7+(6+6+9+9)*MIDI_NUM_CABLES),
+        // MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
+        6,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
+        0x01,                                   // bJackType = EMBEDDED
+        1,                                      // bJackID, ID = 1
+        0,                                      // iJack
+        // MIDI IN Jack Descriptor, B.4.3, Table B-8 (external), page 40
+        6,                                      // bLength
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x02,                                   // bDescriptorSubtype = MIDI_IN_JACK
+        0x02,                                   // bJackType = EXTERNAL
+        2,                                      // bJackID, ID = 2
+        0,                                      // iJack
+        // MIDI OUT Jack Descriptor, B.4.4, Table B-9, page 41
+        9,
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
+        0x01,                                   // bJackType = EMBEDDED
+        3,                                      // bJackID, ID = 3
+        1,                                      // bNrInputPins = 1 pin
+        2,                                      // BaSourceID(1) = 2
+        1,                                      // BaSourcePin(1) = first pin
+        0,                                      // iJack
+        // MIDI OUT Jack Descriptor, B.4.4, Table B-10, page 41
+        9,
+        0x24,                                   // bDescriptorType = CS_INTERFACE
+        0x03,                                   // bDescriptorSubtype = MIDI_OUT_JACK
+        0x02,                                   // bJackType = EXTERNAL
+        4,                                      // bJackID, ID = 4
+        1,                                      // bNrInputPins = 1 pin
+        1,                                      // BaSourceID(1) = 1
+        1,                                      // BaSourcePin(1) = first pin
+        0,                                      // iJack
+  #if MIDI_NUM_CABLES >= 2
+	#define MIDI_INTERFACE_JACK_PAIR(a, b, c, d) \
+		6, 0x24, 0x02, 0x01, (a), 0, \
+		6, 0x24, 0x02, 0x02, (b), 0, \
+		9, 0x24, 0x03, 0x01, (c), 1, (b), 1, 0, \
+		9, 0x24, 0x03, 0x02, (d), 1, (a), 1, 0,
+	MIDI_INTERFACE_JACK_PAIR(5, 6, 7, 8)
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+	MIDI_INTERFACE_JACK_PAIR(9, 10, 11, 12)
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+	MIDI_INTERFACE_JACK_PAIR(13, 14, 15, 16)
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+	MIDI_INTERFACE_JACK_PAIR(17, 18, 19, 20)
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+	MIDI_INTERFACE_JACK_PAIR(21, 22, 23, 24)
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+	MIDI_INTERFACE_JACK_PAIR(25, 26, 27, 28)
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+	MIDI_INTERFACE_JACK_PAIR(29, 30, 31, 32)
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+	MIDI_INTERFACE_JACK_PAIR(33, 34, 35, 36)
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+	MIDI_INTERFACE_JACK_PAIR(37, 38, 39, 40)
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+	MIDI_INTERFACE_JACK_PAIR(41, 42, 43, 44)
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+	MIDI_INTERFACE_JACK_PAIR(45, 46, 47, 48)
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+	MIDI_INTERFACE_JACK_PAIR(49, 50, 51, 52)
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+	MIDI_INTERFACE_JACK_PAIR(53, 54, 55, 56)
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+	MIDI_INTERFACE_JACK_PAIR(57, 58, 59, 60)
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+	MIDI_INTERFACE_JACK_PAIR(61, 62, 63, 64)
+  #endif
+        // Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, pae 42
+        9,                                      // bLength
+        5,                                      // bDescriptorType = ENDPOINT
+        MIDI_RX_ENDPOINT,                       // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        LSB(MIDI_RX_SIZE_12),MSB(MIDI_RX_SIZE_12),// wMaxPacketSize
+        0,                                      // bInterval
+        0,                                      // bRefresh
+        0,                                      // bSynchAddress
+        // Class-specific MS Bulk OUT Endpoint Descriptor, B.5.2, Table B-12, page 42
+        4+MIDI_NUM_CABLES,                      // bLength
+        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
+        0x01,                                   // bJackType = MS_GENERAL
+        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
+        1,                                      // BaAssocJackID(1) = jack ID #1
+  #if MIDI_NUM_CABLES >= 2
+        5,
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+        9,
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+        13,
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+        17,
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+        21,
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+        25,
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+        29,
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+        33,
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+        37,
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+        41,
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+        45,
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+        49,
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+        53,
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+        57,
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+        61,
+  #endif
+        // Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
+        9,                                      // bLength
+        5,                                      // bDescriptorType = ENDPOINT
+        MIDI_TX_ENDPOINT | 0x80,                // bEndpointAddress
+        0x02,                                   // bmAttributes (0x02=bulk)
+        LSB(MIDI_TX_SIZE_12),MSB(MIDI_TX_SIZE_12),// wMaxPacketSize
+        0,                                      // bInterval
+        0,                                      // bRefresh
+        0,                                      // bSynchAddress
+        // Class-specific MS Bulk IN Endpoint Descriptor, B.5.2, Table B-12, page 42
+        4+MIDI_NUM_CABLES,                      // bLength
+        0x25,                                   // bDescriptorSubtype = CS_ENDPOINT
+        0x01,                                   // bJackType = MS_GENERAL
+        MIDI_NUM_CABLES,                        // bNumEmbMIDIJack = number of jacks
+        3,                                      // BaAssocJackID(1) = jack ID #3
+  #if MIDI_NUM_CABLES >= 2
+        7,
+  #endif
+  #if MIDI_NUM_CABLES >= 3
+        11,
+  #endif
+  #if MIDI_NUM_CABLES >= 4
+        15,
+  #endif
+  #if MIDI_NUM_CABLES >= 5
+        19,
+  #endif
+  #if MIDI_NUM_CABLES >= 6
+        23,
+  #endif
+  #if MIDI_NUM_CABLES >= 7
+        27,
+  #endif
+  #if MIDI_NUM_CABLES >= 8
+        31,
+  #endif
+  #if MIDI_NUM_CABLES >= 9
+        35,
+  #endif
+  #if MIDI_NUM_CABLES >= 10
+        39,
+  #endif
+  #if MIDI_NUM_CABLES >= 11
+        43,
+  #endif
+  #if MIDI_NUM_CABLES >= 12
+        47,
+  #endif
+  #if MIDI_NUM_CABLES >= 13
+        51,
+  #endif
+  #if MIDI_NUM_CABLES >= 14
+        55,
+  #endif
+  #if MIDI_NUM_CABLES >= 15
+        59,
+  #endif
+  #if MIDI_NUM_CABLES >= 16
+        63,
+  #endif
+#endif // MIDI_INTERFACE
 #ifdef MULTITOUCH_INTERFACE
 	// configuration for 12 Mbit/sec speed
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
