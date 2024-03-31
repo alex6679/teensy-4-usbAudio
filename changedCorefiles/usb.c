@@ -681,13 +681,15 @@ static void endpoint0_setup(uint64_t setupdata)
 					endpoint0_buffer[1] = (((uint32_t)AUDIO_SAMPLE_RATE) >> 8) & 255;
 					endpoint0_buffer[2] = (((uint32_t)AUDIO_SAMPLE_RATE) >> 16) & 255;
 					endpoint0_buffer[3] = 0;
-					endpoint0_transmit(endpoint0_buffer, 4, 0);
+					uint32_t l = setup.wLength < 4 ? setup.wLength : 4;
+					endpoint0_transmit(endpoint0_buffer, l, 0);
 					return;
 				}
 				if(setup.wValue == 0x0200){
 					//0x02...CS_CLOCK_VALID_CONTROL 0x00... channel must be set to 0
 					endpoint0_buffer[0] = 1; //always valid
-					endpoint0_transmit(endpoint0_buffer, 1, 0);
+					uint32_t l = setup.wLength < 1 ? setup.wLength : 1;
+					endpoint0_transmit(endpoint0_buffer, l, 0);
 					return;
 				}						
 			}
@@ -726,7 +728,8 @@ static void endpoint0_setup(uint64_t setupdata)
 			uint32_t len;
 			if (usb_audio_get_feature(&setup, endpoint0_buffer, &len)) {
 				//printf("GET feature, len=%d\n", len);
-				endpoint0_transmit(endpoint0_buffer, len, 0);
+				uint32_t l = setup.wLength < len ? setup.wLength : len;
+				endpoint0_transmit(endpoint0_buffer, l, 0);
 				return;
 			}
 			break;			
