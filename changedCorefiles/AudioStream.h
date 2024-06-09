@@ -29,6 +29,25 @@
  */
 
 #ifndef AudioStream_h
+
+/*
+ * If the audio sample rate isn't defined on the command line, and
+ * hasn't yet been defined, then define it now:
+ */
+#ifndef AUDIO_SAMPLE_RATE_EXACT
+#define AUDIO_SAMPLE_RATE_EXACT 44100.0f
+#endif
+
+#ifndef AUDIO_SAMPLE_RATE_I
+#define AUDIO_SAMPLE_RATE_I 44100	//used for preprocessor conditionals in usb_desc.h
+#endif
+
+#ifndef AUDIO_SAMPLE_RATE
+#define AUDIO_SAMPLE_RATE AUDIO_SAMPLE_RATE_EXACT
+#endif
+
+#if !defined(IN_USB_DESC_H) // only sample rates are needed in usb_desc.h...
+// ...but we're not included from there: define the rest, too
 #define AudioStream_h
 
 #ifndef __ASSEMBLER__
@@ -36,7 +55,7 @@
 #include <string.h> // for memcpy
 #endif
 
-#include "AudioData.h"
+//#include "AudioData.h"
 
 // AUDIO_BLOCK_SAMPLES determines how many samples the audio library processes
 // per update.  It may be reduced to achieve lower latency response to events,
@@ -51,12 +70,24 @@
 //   AudioInputUSB, AudioOutputUSB, AudioPlaySdWav, AudioAnalyzeFFT256,
 //   AudioAnalyzeFFT1024
 
+#ifndef AUDIO_BLOCK_SAMPLES
+#define AUDIO_BLOCK_SAMPLES  128
+#endif
 
 #define noAUDIO_DEBUG_CLASS // disable this class by default
 
 #ifndef __ASSEMBLER__
+
+typedef struct audio_block_struct {
+	uint8_t  ref_count;
+	uint8_t  reserved1;
+	uint16_t memory_pool_index;
+	int16_t  data[AUDIO_BLOCK_SAMPLES];
+} audio_block_t;
+
 class AudioStream;
 class AudioConnection;
+
 #if defined(AUDIO_DEBUG_CLASS)
 class AudioDebug;  // for testing only, never for public release
 #endif // defined(AUDIO_DEBUG_CLASS)
@@ -200,4 +231,5 @@ class AudioDebug
 #endif // defined(AUDIO_DEBUG_CLASS)
 
 #endif // __ASSEMBLER__
+#endif // defined(IN_USB_DESC_H)
 #endif // AudioStream_h

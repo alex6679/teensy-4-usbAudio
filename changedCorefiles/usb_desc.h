@@ -35,7 +35,10 @@
 // provided by usb_dev.c are meant to be called only by
 // code which provides higher-level interfaces to the user.
 
-#include <AudioData.h>
+#define IN_USB_DESC_H // signal we only need sample rate macros
+#include <AudioStream.h>
+#undef IN_USB_DESC_H
+
 #include <stdint.h>
 #include <stddef.h>
 
