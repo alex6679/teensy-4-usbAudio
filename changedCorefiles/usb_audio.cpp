@@ -66,7 +66,7 @@ namespace {
 	// +3:
 	// +1 we round the number of needed blocks up
 	// +1 because we store the block that is ready for transmission in the buffer
-	// +1 just to be able have one block in reserve (prevents buffer overflows and comes at more or less no additional cost (at normal operation no additional latency + no additional memory needed))
+	// +1 just to have one block in reserve (prevents buffer overflows and comes at more or less no additional cost (at normal operation no additional latency + no additional memory needed))
 	// *2 because to be symmetrically protected against buffer overflow (a high TARGET_RX_BUFFER_TIME_S only prevents buffer underflows)
 	constexpr uint16_t ringRxBufferSize = uint16_t(TARGET_RX_BUFFER_TIME_S / blockDuration) *2 +3;	
 	

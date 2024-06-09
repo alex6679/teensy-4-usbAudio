@@ -55,8 +55,6 @@
 #include <string.h> // for memcpy
 #endif
 
-//#include "AudioData.h"
-
 // AUDIO_BLOCK_SAMPLES determines how many samples the audio library processes
 // per update.  It may be reduced to achieve lower latency response to events,
 // at the expense of higher interrupt and DMA setup overhead.
