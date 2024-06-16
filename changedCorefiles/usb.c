@@ -16,7 +16,6 @@
 #include "avr/pgmspace.h"
 #include <string.h>
 #include "debug/printf.h"
-#include "util/usbHostRequestBuffer.h"
 
 #define LSB(n) ((n) & 255)
 #define MSB(n) (((n) >> 8) & 255)
@@ -420,8 +419,6 @@ static void endpoint0_setup(uint64_t setupdata)
 	const usb_descriptor_list_t *list;
 	//printf("wRequestAndType= %x, word1=%x, wIndex=%d\n", setup.wRequestAndType, setup.word1, setup.wIndex);
 	setup.bothwords = setupdata;
-	addToRequestBuffer(setupdata);
-	setStalled(0, 0);
 	switch (setup.wRequestAndType) {
 	  case 0x0500: // SET_ADDRESS
 		endpoint0_receive(NULL, 0, 0);
@@ -776,7 +773,6 @@ static void endpoint0_setup(uint64_t setupdata)
 	}
 	//printf("endpoint 0 stall\n");
 	
-	setStalled(1, 1);
 	USB1_ENDPTCTRL0 = 0x000010001; // stall
 }
 

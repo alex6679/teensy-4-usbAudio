@@ -2,8 +2,6 @@
 #include <Audio.h>
 #include "set_usb_string_serial_number.h"
 
-//#include <util/usbHostRequestBuffer.h>  only used for debugging the initialization
-
 //activate one of the four options
 #define PLOT_SIGNAL               //use Arduino Serial Plotter
 //#define PLOT_BUFFER             //use Arduino Serial Plotter
