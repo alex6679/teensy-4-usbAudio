@@ -46,11 +46,16 @@
 #define AUDIO_SAMPLE_RATE AUDIO_SAMPLE_RATE_EXACT
 #endif
 
+#ifndef AUDIO_BLOCK_SAMPLES
+#define AUDIO_BLOCK_SAMPLES  128
+#endif
+
 #if !defined(IN_USB_DESC_H) // only sample rates are needed in usb_desc.h...
 // ...but we're not included from there: define the rest, too
 #define AudioStream_h
 
 #ifndef __ASSEMBLER__
+#include "Arduino.h"
 #include <stdio.h>  // for NULL
 #include <string.h> // for memcpy
 #endif
@@ -67,10 +72,6 @@
 // audio classes are known to have problems with smaller block sizes:
 //   AudioInputUSB, AudioOutputUSB, AudioPlaySdWav, AudioAnalyzeFFT256,
 //   AudioAnalyzeFFT1024
-
-#ifndef AUDIO_BLOCK_SAMPLES
-#define AUDIO_BLOCK_SAMPLES  128
-#endif
 
 #define noAUDIO_DEBUG_CLASS // disable this class by default
 

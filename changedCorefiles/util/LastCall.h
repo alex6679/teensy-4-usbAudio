@@ -3,7 +3,6 @@
 
 #ifndef lastCall_h_
 #define lastCall_h_
-#include "Arduino.h"
 #include <arm_math.h>
 #include <array>
 #include <numeric>

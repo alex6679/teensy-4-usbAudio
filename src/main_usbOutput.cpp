@@ -1,28 +1,9 @@
 #include <Audio.h>
-
-//#include <util/usbHostRequestBuffer.h>  only used for debugging the initialization
-#define AUDIO_kHz ((int) AUDIO_SAMPLE_RATE / 1000)
-#define AUDIO_CHANNELS USB_AUDIO_NO_CHANNELS_480
-
-// Changing string in descriptor keeps Windows 10 happier
-extern "C"
-{
-    struct usb_string_descriptor_struct
-    {
-        uint8_t bLength;
-        uint8_t bDescriptorType;
-        uint16_t wString[6+1+1+2+1];
-    };
-
-  usb_string_descriptor_struct usb_string_serial_number={
-    2+(6+1+1+2+1)*2,3,
-    {'A','u','d','i','o','-','0'+AUDIO_CHANNELS,'/','0'+(AUDIO_kHz / 10),'0' + (AUDIO_kHz % 10),'B'}
-  };
-}
+#include "set_usb_string_serial_number.h"
 
 //activate one of the two options
-#define PLOT_BUFFER             //use Arduino Serial Plotter
-//#define PRINT_USBOUTPUT_STATUS   //prints information like number of buffer over and underruns
+//#define PLOT_BUFFER             //use Arduino Serial Plotter
+#define PRINT_USBOUTPUT_STATUS   //prints information like number of buffer over and underruns
 
 AudioSynthWaveform       audioSynth0;
 AudioSynthWaveform       audioSynth1;
@@ -75,7 +56,7 @@ void loop() {
 #endif
  
 #ifdef PRINT_USBOUTPUT_STATUS
-    AudioOutputUSB::Status status = usb1.getStatus();
+    USBAudioOutInterface::Status status = usb1.getStatus();
     Serial.print("buffer overrun: ");
     Serial.println(status.usb_audio_overrun_count);
     Serial.print("buffer underruns: ");
