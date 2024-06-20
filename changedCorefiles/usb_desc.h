@@ -796,7 +796,11 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_TX_SIZE_480       512
   #define CDC_RX_SIZE_12        64
   #define CDC_TX_SIZE_12        64
-  #define MIDI_INTERFACE        5	// MIDI
+  #define AUDIO_INTERFACE	      2	// Audio (uses 3 consecutive interfaces)
+  #define AUDIO_TX_ENDPOINT     5
+  #define AUDIO_RX_ENDPOINT     5
+  #define AUDIO_SYNC_ENDPOINT   6
+  #define MIDI_INTERFACE        5	// MIDI (usb2 specification: interface number of midi must directly follow the audio interface numbers)
   #define MIDI_NUM_CABLES       1
   #define MIDI_TX_ENDPOINT      4
   #define MIDI_TX_SIZE_12       64
@@ -804,10 +808,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MIDI_RX_ENDPOINT      4
   #define MIDI_RX_SIZE_12       64
   #define MIDI_RX_SIZE_480      512
-  #define AUDIO_INTERFACE	2	// Audio (uses 3 consecutive interfaces)
-  #define AUDIO_TX_ENDPOINT     5
-  #define AUDIO_RX_ENDPOINT     5
-  #define AUDIO_SYNC_ENDPOINT	6
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
@@ -827,7 +827,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define NUM_INTERFACE		6
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
-  #define CDC_DATA_INTERFACE	1	// Serial
+  #define CDC_DATA_INTERFACE	  1	// Serial
   #define CDC_ACM_ENDPOINT	2
   #define CDC_RX_ENDPOINT       3
   #define CDC_TX_ENDPOINT       3
@@ -836,7 +836,11 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_TX_SIZE_480       512
   #define CDC_RX_SIZE_12        64
   #define CDC_TX_SIZE_12        64
-  #define MIDI_INTERFACE        2	// MIDI
+  #define AUDIO_INTERFACE	      2	// Audio (uses 3 consecutive interfaces)
+  #define AUDIO_TX_ENDPOINT     5
+  #define AUDIO_RX_ENDPOINT     5
+  #define AUDIO_SYNC_ENDPOINT	  6
+  #define MIDI_INTERFACE        5	// MIDI (usb2 specification: interface number of midi must directly follow the audio interface numbers)
   #define MIDI_NUM_CABLES       16
   #define MIDI_TX_ENDPOINT      4
   #define MIDI_TX_SIZE_12       64
@@ -844,10 +848,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MIDI_RX_ENDPOINT      4
   #define MIDI_RX_SIZE_12       64
   #define MIDI_RX_SIZE_480      512
-  #define AUDIO_INTERFACE	3	// Audio (uses 3 consecutive interfaces)
-  #define AUDIO_TX_ENDPOINT     5
-  #define AUDIO_RX_ENDPOINT     5
-  #define AUDIO_SYNC_ENDPOINT	6
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_UNUSED + ENDPOINT_TRANSMIT_INTERRUPT
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_BULK + ENDPOINT_TRANSMIT_BULK
@@ -878,35 +878,29 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define CDC_ACM_SIZE          16
   #define CDC_RX_SIZE           64
   #define CDC_TX_SIZE           64
-  #define MIDI_INTERFACE        2	// MIDI
-  #define MIDI_NUM_CABLES       16
-  #define MIDI_TX_ENDPOINT      3
-  #define MIDI_TX_SIZE          64
-  #define MIDI_RX_ENDPOINT      3
-  #define MIDI_RX_SIZE          64
-  #define KEYBOARD_INTERFACE    3	// Keyboard
+  #define KEYBOARD_INTERFACE    2	// Keyboard
   #define KEYBOARD_ENDPOINT     4
   #define KEYBOARD_SIZE         8
   #define KEYBOARD_INTERVAL     1
-  #define MOUSE_INTERFACE       4	// Mouse
+  #define MOUSE_INTERFACE       3	// Mouse
   #define MOUSE_ENDPOINT        5
   #define MOUSE_SIZE            8
   #define MOUSE_INTERVAL        2
-  #define RAWHID_INTERFACE      5	// RawHID
+  #define RAWHID_INTERFACE      4	// RawHID
   #define RAWHID_TX_ENDPOINT    6
   #define RAWHID_TX_SIZE        64
   #define RAWHID_TX_INTERVAL    1
   #define RAWHID_RX_ENDPOINT    6
   #define RAWHID_RX_SIZE        64
   #define RAWHID_RX_INTERVAL    1
-  #define FLIGHTSIM_INTERFACE	6	// Flight Sim Control
+  #define FLIGHTSIM_INTERFACE	  5	// Flight Sim Control
   #define FLIGHTSIM_TX_ENDPOINT	9
   #define FLIGHTSIM_TX_SIZE	64
   #define FLIGHTSIM_TX_INTERVAL	1
   #define FLIGHTSIM_RX_ENDPOINT	9
   #define FLIGHTSIM_RX_SIZE	64
   #define FLIGHTSIM_RX_INTERVAL	1
-  #define JOYSTICK_INTERFACE    7	// Joystick
+  #define JOYSTICK_INTERFACE    6	// Joystick
   #define JOYSTICK_ENDPOINT     10
   #define JOYSTICK_SIZE         12	//  12 = normal, 64 = extreme joystick
   #define JOYSTICK_INTERVAL     1
@@ -920,14 +914,20 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MTP_EVENT_SIZE	16
   #define MTP_EVENT_INTERVAL	10
 */
-  #define KEYMEDIA_INTERFACE    8	// Keyboard Media Keys
+  #define KEYMEDIA_INTERFACE    7	// Keyboard Media Keys
   #define KEYMEDIA_ENDPOINT     12
   #define KEYMEDIA_SIZE         8
   #define KEYMEDIA_INTERVAL     4
-  #define AUDIO_INTERFACE	9	// Audio (uses 3 consecutive interfaces)
+  #define AUDIO_INTERFACE	      8	// Audio (uses 3 consecutive interfaces)
   #define AUDIO_TX_ENDPOINT     13
   #define AUDIO_RX_ENDPOINT     13
   #define AUDIO_SYNC_ENDPOINT	14
+  #define MIDI_INTERFACE        11	// MIDI (usb2 specification: interface number of midi must directly follow the audio interface numbers)
+  #define MIDI_NUM_CABLES       16
+  #define MIDI_TX_ENDPOINT      3
+  #define MIDI_TX_SIZE          64
+  #define MIDI_RX_ENDPOINT      3
+  #define MIDI_RX_SIZE          64
   #define MULTITOUCH_INTERFACE  12	// Touchscreen
   #define MULTITOUCH_ENDPOINT   15
   #define MULTITOUCH_SIZE       9
