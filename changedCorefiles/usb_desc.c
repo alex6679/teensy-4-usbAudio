@@ -1196,11 +1196,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE_480] = {
         8,                                      // bLength
         11,                                     // bDescriptorType
         AUDIO_INTERFACE,                        // bFirstInterface
-#ifdef MIDI_INTERFACE
-        4,                                      // bInterfaceCount
-#else
         3,                                      // bInterfaceCount
-#endif
         0x01,                                   // bFunctionClass
         0x00,                                   // bFunctionSubClass, 0x00 = FUNCTION_SUBCLASS_UNDEFINED
         0x20,                                   // bFunctionProtocol 0x20 = IP_VERSION_02_00 = AF_VERSION_02_00
@@ -2348,11 +2344,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE_12] = {
         8,                                      // bLength
         11,                                     // bDescriptorType
         AUDIO_INTERFACE,                        // bFirstInterface
-#ifdef MIDI_INTERFACE
-        4,                                      // bInterfaceCount
-#else
         3,                                      // bInterfaceCount
-#endif
         0x01,                                   // bFunctionClass
         0x00,                                   // bFunctionSubClass, 0x00 = FUNCTION_SUBCLASS_UNDEFINED
         0x20,                                   // bFunctionProtocol 0x20 = IP_VERSION_02_00 = AF_VERSION_02_00
