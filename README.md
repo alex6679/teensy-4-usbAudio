@@ -9,6 +9,6 @@ Main features are:
 - USB input and output: The target number of buffered samples can be configured. (Can e.g. be increased if buffer under- or overruns occur.)
 - USB input and ouput provide information about there status (getStatus) like if and how many buffer over- and underruns occured.
 
-Tested with Teensyduino 1.59
+Tested with Teensyduino 1.59 + Arduino IDE being 1.8.19 and Visual Studio Code + Platformio/Teensy platform version 5.0.0
 In order to use it, copy the files of 'changedCorefiles' into cores/Teensy4 and replace the original files.
 Examples can be found in main_usbOutput.cpp and main_usbInput.cpp 
