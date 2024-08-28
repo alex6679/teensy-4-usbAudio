@@ -7,12 +7,12 @@ version=1.8.5
 rewriting=disabled
 
 # Teensyduino Installer
-compiler.path={runtime.hardware.path}/../tools/
-teensytools.path={runtime.hardware.path}/../tools/
+#compiler.path={runtime.hardware.path}/../tools/
+#teensytools.path={runtime.hardware.path}/../tools/
 
 # Arduino Boards Manager
-#compiler.path={runtime.tools.teensy-compile.path}/
-#teensytools.path={runtime.tools.teensy-tools.path}/
+compiler.path={runtime.tools.teensy-compile.path}/
+teensytools.path={runtime.tools.teensy-tools.path}/
 
 build.flags.audioblocksize=128
 build.flags.audiorate=44100.0f
@@ -100,21 +100,21 @@ recipe.size.regex.eeprom=^(?:\.eeprom)\s+([0-9]+).*
 ##  so we can not use {teensytools.path} or {compiler.path} here
 
 # Teensyduino Installer
-discovery.teensy.pattern="{runtime.hardware.path}/../tools/teensy_ports" -J2
+#discovery.teensy.pattern="{runtime.hardware.path}/../tools/teensy_ports" -J2
 
 # Arduino Boards Manager
-#discovery.teensy.pattern="{runtime.tools.teensy-tools.path}/teensy_ports" -J2
-#pluggable_discovery.required=teensy:teensy-discovery
-#pluggable_monitor.required.teensy=teensy:teensy-monitor
+discovery.teensy.pattern="{runtime.tools.teensy-tools.path}/teensy_ports" -J2
+pluggable_discovery.required=teensy:teensy-discovery
+pluggable_monitor.required.teensy=teensy:teensy-monitor
 
 
 ## Teensy Loader
 
 # Teensyduino Installer
-tools.teensyloader.cmd.path={runtime.hardware.path}/../tools
+#tools.teensyloader.cmd.path={runtime.hardware.path}/../tools
 
 # Arduino Boards Manager
-#tools.teensyloader.cmd.path={runtime.tools.teensy-tools.path}
+tools.teensyloader.cmd.path={runtime.tools.teensy-tools.path}
 
 tools.teensyloader.upload.params.quiet=
 tools.teensyloader.upload.params.verbose=-verbose
