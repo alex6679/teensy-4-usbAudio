@@ -1,5 +1,5 @@
 # Extension of the T4.x USB audio input and output. #
-This suite of files enables 2-, 4-, 6- or 8-channel USB I/O to be used with the Teensy 4.x Audio library. It has been devloped based on Teensyduino 1.59, so no representations are made as to whether it might work starting from older versions!
+This suite of files enables 2-, 4-, 6- or 8-channel USB I/O to be used with the Teensy 4.x Audio library. It has been developed based on Teensyduino 1.59, so no representations are made as to whether it might work starting from older versions!
 
 ## Installation ##
 Until such time as these changes are merged into the Teensyduino release package, installation is a manual process. These instructions assume you are working from an unmodified installation - if you have already modified any of the files involved you will need to figure out how to merge these changes yourself.
@@ -53,3 +53,5 @@ Main features are:
 - USB input: Parameters of the PI controller that computes the feedback can optionally be set at the constructor.
 - USB input and output: The target number of buffered samples can be configured. (Can e.g. be increased if buffer under- or overruns occur.)
 - USB input and ouput provide information about their status (getStatus) like if and how many buffer over- and under-runs occurred.
+
+Tested with Teensyduino 1.59 + Arduino IDE being 1.8.19 and Visual Studio Code + Platformio/Teensy platform version 5.0.0
