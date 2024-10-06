@@ -3,6 +3,7 @@
 
 //activate one of the two options
 //#define PLOT_BUFFER             //use Arduino Serial Plotter
+//#define PLOT_BINTERVAL            //use Arduino Serial Plotter
 #define PRINT_USBOUTPUT_STATUS   //prints information like number of buffer over and underruns
 
 AudioSynthWaveform       audioSynth0;
@@ -34,6 +35,7 @@ AudioSynthWaveform* wavs[] = {
   &audioSynth7
 };
 
+uint16_t expectedBIntervalUs;
 void setup() {                
   AudioMemory(80);
   for (int i=0;i<8;i++) {
@@ -44,6 +46,8 @@ void setup() {
   while (!Serial){};
   // delay(5000);
   // printRequestBuffer(); // only used for debugging the usb requests from the host at the initialization
+  USBAudioOutInterface::Status status = usb1.getStatus();
+  expectedBIntervalUs = status.bInterval_uS;
 }
 
 void loop() {
@@ -54,7 +58,12 @@ void loop() {
     Serial.println(usb1.getBufferedSamplesSmooth());
     delay(200); 
 #endif
- 
+#ifdef PLOT_BINTERVAL
+  Serial.print(usb1.getActualBIntervalUs(),4);
+  Serial.print(" ");
+  Serial.println(expectedBIntervalUs);
+  delay(200);
+#endif
 #ifdef PRINT_USBOUTPUT_STATUS
     USBAudioOutInterface::Status status = usb1.getStatus();
     Serial.print("buffer overrun: ");
@@ -69,6 +78,8 @@ void loop() {
     Serial.println(status.ring_buffer_size);  
     Serial.print("currently transmitting data : ");
     Serial.println(status.transmittingData);  
+    Serial.print("usb_high_speed : ");
+    Serial.println(status.usb_high_speed); 
     Serial.print("num_padded_Samples : ");
     Serial.println(status.num_padded_Samples);
     Serial.print("num_skipped_Samples : ");

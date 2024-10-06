@@ -73,8 +73,9 @@ public:
 		uint16_t num_transmitted_channels;		//might be smaller than expected in case the 12Mbit/s bandwidth limits the number of channels
 		uint16_t ring_buffer_size;
 		uint16_t usb_rx_tx_buffer_size;
-		uint16_t bInterval_uS;
+		uint16_t bInterval_uS;					// as requested by the Teensy
 		bool receivingData;
+		uint8_t usb_high_speed;					// 1 for high speed, 0 otherwise
 	};
 	typedef bool (*SetBlockQuite) (uint16_t bIdx, uint16_t channel);
 	typedef void (*ReleaseBlock)(uint16_t bIdx, uint16_t channel);
@@ -106,6 +107,7 @@ public:
 	float getBufferedSamples() const;
 	float getBufferedSamplesSmooth() const;
 	float getRequestedSamplingFrequ() const;
+	float getActualBIntervalUs() const;
 	Status getStatus() const;
 	friend void usb_audio_receive_callback(unsigned int len);
 	friend int usb_audio_set_feature(void *stp, uint8_t *buf);
@@ -149,10 +151,11 @@ public:
 		uint16_t num_transmitted_channels;
 		uint16_t ring_buffer_size;
 		uint16_t usb_rx_tx_buffer_size;
-		uint16_t bInterval_uS;
+		uint16_t bInterval_uS;					// as requested by the Teensy
 		uint32_t num_skipped_Samples;
 		uint32_t num_padded_Samples;
 		bool transmittingData;
+		uint8_t usb_high_speed;					// 1 for high speed, 0 otherwise
 	};
 
 	typedef void (*ReleaseBlocks)(uint16_t bIdx, uint16_t noChannels);
@@ -170,6 +173,7 @@ public:
 	friend unsigned int usb_audio_transmit_callback(void);
 	float getBufferedSamples() const;
 	float getBufferedSamplesSmooth() const;
+	float getActualBIntervalUs() const;
 	Status getStatus() const;
 private:
 	static void tryIncreaseIdxTransmission(uint16_t& tBIdx, uint16_t& offset);

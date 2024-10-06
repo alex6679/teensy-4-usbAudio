@@ -150,6 +150,7 @@ USBAudioInInterface::Status USBAudioInInterface::getStatus() const{
 	status.usb_rx_tx_buffer_size = AUDIO_RX_SIZE;
 	status.receivingData=_streaming;
 	status.bInterval_uS = audioPollingIntervaluS;
+	status.usb_high_speed = usb_high_speed;
 	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
 	return status;
 }
@@ -227,6 +228,13 @@ void USBAudioInInterface::begin(){
 	lastCallReceiveIsr.reset(expectedIsrIntervalCycles);
 	__enable_irq();
 
+}
+float USBAudioInInterface::getActualBIntervalUs() const {
+	float toUS =1000000.f/F_CPU_ACTUAL;
+	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
+	float bInterval= (float)lastCallReceiveIsr.getLastDuration()*toUS;
+	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
+	return bInterval;
 }
 void USBAudioInInterface::stop(){
 	__disable_irq();
@@ -629,6 +637,13 @@ USBAudioOutInterface::USBAudioOutInterface(ReleaseBlocks rbs, IsBlockReady ibr, 
 		USBAudioOutInterface::isBlockReady=ibr;
 		USBAudioOutInterface::copy_from_buffer = c_f_b;
 }
+float USBAudioOutInterface::getActualBIntervalUs() const {
+	float toUS =1000000.f/F_CPU_ACTUAL;
+	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
+	float bInterval= (float)lastCallTransmitIsr.getLastDuration()*toUS;
+	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
+	return bInterval;
+}
 void USBAudioOutInterface::begin(){
 	__disable_irq();
 	if(USBAudioOutInterface::running){
@@ -669,6 +684,7 @@ USBAudioOutInterface::Status USBAudioOutInterface::getStatus() const{
 	status.bInterval_uS = audioPollingIntervaluS;
 	status.num_skipped_Samples = num_skipped_Samples;
 	status.num_padded_Samples = num_padded_Samples;
+	status.usb_high_speed = usb_high_speed;
 	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
 	return status;
 }
