@@ -84,25 +84,39 @@ float AudioInputUSB::volume(void){
 #if AUDIO_SUBSLOT_SIZE==2
 void AudioInputUSB::copy_to_buffers(const uint8_t *src, uint16_t bIdx, uint16_t noChannels, unsigned int count, unsigned int len) {
 	const uint16_t *src16Bit =(const uint16_t *)src;
+	if(count+len > AUDIO_BLOCK_SAMPLES ){
+		if(Serial){
+			Serial.print("Requested write index too large: ");
+			Serial.println(count+len);
+		}
+		return;
+	}
 	for (uint32_t i =0; i< len; i++){
 		for (uint16_t j =0; j< noChannels; j++){
-			rxBuffer[bIdx][j]->data[count +i]=*src16Bit++;
+			if(!rxBuffer[bIdx]){
+				if(Serial){
+					Serial.println("Buffer was not initialized!");
+				}
+			}
+			else {
+				rxBuffer[bIdx][j]->data[count +i]=*src16Bit++;
+			}
 		}
 	}
 }
 #endif
-
-#if AUDIO_SUBSLOT_SIZE==3
-void AudioInputUSB::copy_to_buffers(const uint8_t *src, uint16_t bIdx, uint16_t noChannels, unsigned int count, unsigned int len) {
-	for (uint32_t i =0; i< len; i++){
-		for (uint16_t j =0; j< noChannels; j++){
-			++src;
-			rxBuffer[bIdx][j]->data[count +i]=(*src++);
-			rxBuffer[bIdx][j]->data[count +i] |=(*src++)<<8;
-		}
-	}
-}
-#endif
+//removed because we stick to AUDIO_SUBSLOT_SIZE==2 for debugging
+// #if AUDIO_SUBSLOT_SIZE==3
+// void AudioInputUSB::copy_to_buffers(const uint8_t *src, uint16_t bIdx, uint16_t noChannels, unsigned int count, unsigned int len) {
+// 	for (uint32_t i =0; i< len; i++){
+// 		for (uint16_t j =0; j< noChannels; j++){
+// 			++src;
+// 			rxBuffer[bIdx][j]->data[count +i]=(*src++);
+// 			rxBuffer[bIdx][j]->data[count +i] |=(*src++)<<8;
+// 		}
+// 	}
+// }
+// #endif
 bool AudioInputUSB::setBlockQuite(uint16_t bIdx, uint16_t channel){        
 	if(!rxBuffer[bIdx][channel]){
 		rxBuffer[bIdx][channel] = AudioStream::allocate();
