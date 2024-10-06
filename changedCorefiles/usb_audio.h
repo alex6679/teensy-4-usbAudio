@@ -49,6 +49,11 @@ public:
 	float getActualBIntervalUs() const;
 	USBAudioInInterface::Status getStatus() const;
 	float volume(void);
+	void printExampleInfo()const {
+		if(Serial){
+			Serial.println("AudioInputUSB: Running new class with old/UAC1 usb standard.");
+		} 
+	}
 
 private:
 	static void copy_to_buffers(const uint8_t *src, uint16_t bIdx, uint16_t noChannels, unsigned int count, unsigned int len);

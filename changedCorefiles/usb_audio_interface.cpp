@@ -43,8 +43,8 @@ namespace {
     #define AUDIO_TX_SIZE         AUDIO_RX_SIZE_480
     #define AUDIO_RX_SIZE         AUDIO_RX_SIZE_480
   #else
-    #define AUDIO_TX_SIZE         AUDIO_RX_SIZE_12
-    #define AUDIO_RX_SIZE         AUDIO_RX_SIZE_12
+    //#define AUDIO_TX_SIZE         AUDIO_RX_SIZE_12
+    //#define AUDIO_RX_SIZE         AUDIO_RX_SIZE_12
   #endif
 
 	uint16_t noTransmittedChannels=0;	//depending if usb_high_speed if true this is either USB_AUDIO_MAX_NO_CHANNELS or 2 as fall-back strategy
@@ -949,54 +949,37 @@ struct setup_struct {
 
 int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 {
-
 	struct setup_struct setup = *((struct setup_struct *)stp);
-	if(setup.bmRequestType != 0xA1){
-		//was not a get feature request directed to the feature unit
-		return 0;
-	}
-	
-	if (setup.bRequest==0x02) { // -> request = RANGE
-		if (setup.bCS==0x01) { // mute
-			data[0] =1; //only one sub-range (LSB of 2 bytes)
-			data[1] =0; //only one sub-range (MSB of 2 bytes)
-			data[2] =0;	//unmute
-			data[3] = 1; //mute
-			data[4] = 1; //resolution
-			*datalen = 5;
-			return 1;
-		}
-		else if (setup.bCS==0x02) { // volume
-			data[0] = 1; //only one sub-range (LSB of 2 bytes)
-			data[1] = 0; //only one sub-range (MSB of 2 bytes)
-			data[2] = 0;	// min level is 0 (LSB)
-			data[3] = 0; 	// min level is 0 (MSB)
-			data[4] = FEATURE_MAX_VOLUME;  	// max level, for range of 0 to MAX (LSB)
-			data[5] = 0;					// max level, for range of 0 to MAX (MSB)
-			data[6] = 1; // increment vol by by 1 (LSB)
-			data[7] = 0; // increment vol by by 1 (MSB)
-			*datalen = 8;
-			return 1;
-		}
-		else { // pass over SET_MEM, etc.
-			return 0;
-		}
-	}
-	if (setup.bRequest==0x01) { // -> request = CUR
-		if (setup.bCS==0x01) { // mute
-			data[0] = USBAudioInInterface::features.mute;  // 1=mute, 0=unmute
-			*datalen = 1;
-			return 1;
-		}
-		else if (setup.bCS==0x02) { // volume
-			data[0] = USBAudioInInterface::features.volume & 0xFF;	//(LSB)
-			data[1] = (USBAudioInInterface::features.volume>>8) & 0xFF; //(MSB)
-			*datalen = 2;
-			return 1;
-		}
-		else { // pass over SET_MEM, etc.
-			return 0;
-		}
+	if (setup.bmRequestType==0xA1) { // should check bRequest, bChannel, and UnitID
+			if (setup.bCS==0x01) { // mute
+				data[0] = USBAudioInInterface::features.mute;  // 1=mute, 0=unmute
+				*datalen = 1;
+				return 1;
+			}
+			else if (setup.bCS==0x02) { // volume
+				if (setup.bRequest==0x81) { // GET_CURR
+					data[0] = USBAudioInInterface::features.volume & 0xFF;
+					data[1] = (USBAudioInInterface::features.volume>>8) & 0xFF;
+				}
+				else if (setup.bRequest==0x82) { // GET_MIN
+					//serial_print("vol get_min\n");
+					data[0] = 0;     // min level is 0
+					data[1] = 0;
+				}
+				else if (setup.bRequest==0x83) { // GET_MAX
+					data[0] = FEATURE_MAX_VOLUME;  // max level, for range of 0 to MAX
+					data[1] = 0;
+				}
+				else if (setup.bRequest==0x84) { // GET_RES
+					data[0] = 1; // increment vol by by 1
+					data[1] = 0;
+				}
+				else { // pass over SET_MEM, etc.
+					return 0;
+				}
+				*datalen = 2;
+				return 1;
+			}
 	}
 	return 0;
 }
@@ -1004,22 +987,16 @@ int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 int usb_audio_set_feature(void *stp, uint8_t *buf) 
 {
 	struct setup_struct setup = *((struct setup_struct *)stp);
-	if (setup.bmRequestType==0x21) { // SET FEATURE should check bRequest, bChannel and UnitID
+	if (setup.bmRequestType==0x21) { // should check bRequest, bChannel and UnitID
 			if (setup.bCS==0x01) { // mute
-				if (setup.bRequest==0x01) { // CUR
-					// if(Serial){
-					// 	Serial.println("set mute");
-					// }
+				if (setup.bRequest==0x01) { // SET_CUR
 					USBAudioInInterface::features.mute = buf[0]; // 1=mute,0=unmute
 					USBAudioInInterface::features.change = 1;
 					return 1;
 				}
 			}
 			else if (setup.bCS==0x02) { // volume
-				if (setup.bRequest==0x01) { // CUR
-					// if(Serial){
-					// 	Serial.println("set volume");
-					// }
+				if (setup.bRequest==0x01) { // SET_CUR
 					USBAudioInInterface::features.volume = buf[0];
 					USBAudioInInterface::features.change = 1;
 					return 1;

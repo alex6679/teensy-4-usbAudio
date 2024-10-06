@@ -26,6 +26,8 @@ void setup() {
   // printRequestBuffer();  // only used for debugging the usb requests from the host at the initialization
   USBAudioInInterface::Status status = usb1.getStatus();
   expectedBIntervalUs = status.bInterval_uS;
+  usb1.printExampleInfo();
+  delay(3000);
 }
 
 void loop() {

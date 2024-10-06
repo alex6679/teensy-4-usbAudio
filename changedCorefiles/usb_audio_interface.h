@@ -34,6 +34,8 @@
 #include "usb_desc.h"
 #ifdef AUDIO_INTERFACE
 
+#define USB_AUDIO_MAX_NO_CHANNELS 2
+
 #include "util/LastCall.h"
 
 #define FEATURE_MAX_VOLUME 0xFF  // volume accepted from 0 to 0xFF
