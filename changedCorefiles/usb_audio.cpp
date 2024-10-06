@@ -99,6 +99,9 @@ void AudioInputUSB::copy_to_buffers(const uint8_t *src, uint16_t bIdx, uint16_t 
 				}
 			}
 			else {
+				// if(Serial){
+				// 	Serial.println(*src16Bit);
+				// }
 				rxBuffer[bIdx][j]->data[count +i]=*src16Bit++;
 			}
 		}
