@@ -967,14 +967,16 @@ int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 			return 1;
 		}
 		else if (setup.bCS==0x02) { // volume
+			//Have a look at the UAC2 specification page 102, section 5.2.5.7.2 Volume Control
+			const int16_t maxVol = FEATURE_MAX_VOLUME;
 			data[0] = 1; //only one sub-range (LSB of 2 bytes)
 			data[1] = 0; //only one sub-range (MSB of 2 bytes)
 			data[2] = 0;	// min level is 0 (LSB)
 			data[3] = 0; 	// min level is 0 (MSB)
-			data[4] = FEATURE_MAX_VOLUME;  	// max level, for range of 0 to MAX (LSB)
-			data[5] = 0;					// max level, for range of 0 to MAX (MSB)
-			data[6] = 1; // increment vol by by 1 (LSB)
-			data[7] = 0; // increment vol by by 1 (MSB)
+			data[4] = maxVol & 0xFF;  		// max level, for range of 0 to MAX (LSB)
+			data[5] = (maxVol>>8) & 0xFF;	// max level, for range of 0 to MAX (MSB)
+			data[6] = 1;	// increment vol by by 1 (LSB)
+			data[7] = 0;	// increment vol by by 1 (MSB)
 			*datalen = 8;
 			return 1;
 		}
@@ -989,8 +991,9 @@ int usb_audio_get_feature(void *stp, uint8_t *data, uint32_t *datalen)
 			return 1;
 		}
 		else if (setup.bCS==0x02) { // volume
-			data[0] = USBAudioInInterface::features.volume & 0xFF;	//(LSB)
-			data[1] = (USBAudioInInterface::features.volume>>8) & 0xFF; //(MSB)
+			const int16_t vol = (int16_t)USBAudioInInterface::features.volume;
+			data[0] = vol & 0xFF;	//(LSB)
+			data[1] = (vol>>8) & 0xFF; //(MSB)
 			*datalen = 2;
 			return 1;
 		}
@@ -1020,7 +1023,10 @@ int usb_audio_set_feature(void *stp, uint8_t *buf)
 					// if(Serial){
 					// 	Serial.println("set volume");
 					// }
-					USBAudioInInterface::features.volume = buf[0];
+					//Have a look at the UAC2 specification page 102, section 5.2.5.7.2 Volume Control
+					//volume uses two bytes
+					const int16_t *volPtr =(const int16_t *)buf;
+					USBAudioInInterface::features.volume = *volPtr;
 					USBAudioInInterface::features.change = 1;
 					return 1;
 				}

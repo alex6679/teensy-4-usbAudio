@@ -1312,7 +1312,7 @@ PROGMEM const uint8_t usb_config_descriptor_480[CONFIG_DESC_SIZE_480] = {
 	0x06, 				// bDescriptorSubType = FEATURE_UNIT
 	0x31, 				// bUnitID
 	0x03, 				// bSourceID (Input Terminal)
-	0x03,0x00,0x00,0x00,		// bmaControls(0) Master: Mute   bit 0 and 1
+	15,0x00,0x00,0x00,		// bmaControls(0) Master: Mute   bit 0 and 1 + bit 2 + 3 (reading and writing master volume)
 	12,0x00,0x00,0x00,		// bmaControls(1) Left: Volume   bit 2 and 3   
 	12,0x00,0x00,0x00,		// bmaControls(2) Right: Volume  bit 2 and 3
 #if USB_AUDIO_NO_CHANNELS_480 > 2
@@ -2460,7 +2460,7 @@ PROGMEM const uint8_t usb_config_descriptor_12[CONFIG_DESC_SIZE_12] = {
 	0x06, 				// bDescriptorSubType = FEATURE_UNIT
 	0x31, 				// bUnitID
 	0x03, 				// bSourceID (Input Terminal)
-	0x03,0x00,0x00,0x00,		// bmaControls(0) Master: Mute   bit 0 and 1
+      15,0x00,0x00,0x00,		// bmaControls(0) Master: Mute   bit 0 and 1 + bit 2 + 3 (reading and writing master volume)
 	12,0x00,0x00,0x00,		// bmaControls(1) Left: Volume   bit 2 and 3   
 	12,0x00,0x00,0x00,		// bmaControls(2) Right: Volume  bit 2 and 3
       #if USB_AUDIO_NO_CHANNELS_12 > 2
