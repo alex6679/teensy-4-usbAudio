@@ -1020,9 +1020,6 @@ int usb_audio_set_feature(void *stp, uint8_t *buf)
 			}
 			else if (setup.bCS==0x02) { // volume
 				if (setup.bRequest==0x01) { // CUR
-					// if(Serial){
-					// 	Serial.println("set volume");
-					// }
 					//Have a look at the UAC2 specification page 102, section 5.2.5.7.2 Volume Control
 					//volume uses two bytes
 					const int16_t *volPtr =(const int16_t *)buf;

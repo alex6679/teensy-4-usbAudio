@@ -6,8 +6,9 @@
 //#define PLOT_SIGNAL             //use Arduino Serial Plotter
 //#define PLOT_BUFFER             //use Arduino Serial Plotter
 //#define PLOT_REQUEST_FRREQ      //use Arduino Serial Plotter
-//#define PLOT_BINTERVAL            //use Arduino Serial Plotter
-#define PRINT_USBINPUT_STATUS   //prints information like number of buffer over and underruns
+//#define PLOT_BINTERVAL          //use Arduino Serial Plotter
+#define PRINT_VOL_CHANGES         //prints volume changes, use Serial Monitor
+//#define PRINT_USBINPUT_STATUS   //prints information like number of buffer over and underruns
 
 AudioInputUSB            usb1;          
 AudioOutputI2S           i2s1;        
@@ -29,6 +30,13 @@ void setup() {
 }
 
 void loop() {
+  #ifdef PRINT_VOL_CHANGES
+  if (USBAudioInInterface::features.change){
+      Serial.println(USBAudioInInterface::features.volume);
+      USBAudioInInterface::features.change =0;
+  }
+  delay(200);
+  #endif
 #ifdef PLOT_BUFFER
   Serial.print(usb1.getBufferedSamples());
   Serial.print(" ");
