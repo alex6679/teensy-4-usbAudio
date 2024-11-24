@@ -136,7 +136,13 @@ static void sync_event(transfer_t *t)
 	}
 	// USB 2.0 Specification, 5.12.4.2 Feedback, pages 73-75
 	//printf("sync %x\n", sync_transfer.status); // too slow, can't print this much
-	usb_audio_sync_feedback = feedback_accumulator >> usb_audio_sync_rshift;
+	
+	//usb_audio_sync_feedback = feedback_accumulator >> usb_audio_sync_rshift;
+
+	//For debugging a problem on MACOS purposes only -> remove and use line above
+	usb_audio_sync_feedback = feedback_accumulator_default >> usb_audio_sync_rshift;
+
+
 	usb_prepare_transfer(&sync_transfer, &usb_audio_sync_feedback, usb_audio_sync_nbytes, 0);
 	arm_dcache_flush(&usb_audio_sync_feedback, usb_audio_sync_nbytes);
 	usb_transmit(AUDIO_SYNC_ENDPOINT, &sync_transfer);
