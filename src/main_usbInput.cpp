@@ -3,11 +3,11 @@
 #include "set_usb_string_serial_number.h"
 
 //activate one of the four options
-//#define PLOT_SIGNAL             //use Arduino Serial Plotter
+#define PLOT_SIGNAL             //use Arduino Serial Plotter
 //#define PLOT_BUFFER             //use Arduino Serial Plotter
 //#define PLOT_REQUEST_FRREQ      //use Arduino Serial Plotter
 //#define PLOT_BINTERVAL          //use Arduino Serial Plotter
-#define PRINT_VOL_CHANGES         //prints volume changes, use Serial Monitor
+//#define PRINT_VOL_CHANGES         //prints volume changes, use Serial Monitor
 //#define PRINT_USBINPUT_STATUS   //prints information like number of buffer over and underruns
 
 AudioInputUSB            usb1;          
