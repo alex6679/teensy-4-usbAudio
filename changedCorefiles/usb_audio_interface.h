@@ -154,6 +154,8 @@ public:
 		uint16_t bInterval_uS;					// as requested by the Teensy
 		uint32_t num_skipped_Samples;
 		uint32_t num_padded_Samples;
+		uint32_t num_send_one_less;
+		uint32_t num_send_one_more;
 		bool transmittingData;
 		uint8_t usb_high_speed;					// 1 for high speed, 0 otherwise
 	};

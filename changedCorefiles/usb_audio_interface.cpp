@@ -506,6 +506,9 @@ namespace {
 	
 	volatile uint32_t num_skipped_Samples=0;
 	volatile uint32_t num_padded_Samples=0;
+	volatile uint32_t num_send_one_less=0;
+	volatile uint32_t num_send_one_more=0;
+
 	
 	LastCall<7> lastCallTransmitIsr;
 	constexpr float targetNumTxBufferedSamples = TARGET_TX_BUFFER_TIME_S*AUDIO_SAMPLE_RATE;
@@ -554,13 +557,13 @@ namespace {
 	void updateTarget(int8_t sign, uint32_t& devCounter, uint32_t& target){
 		if(sign == -1){
 			devCounter=0;
-			num_padded_Samples++;
+			num_send_one_less++;
 			//we run out of samples -> slow transmission down
             target--;
 		}
 		else if(sign ==1){
 			devCounter=0;
-			num_skipped_Samples++;
+			num_send_one_more++;
 			//we run out of buffer space -> speed transmission down
 			target++;
 		}
@@ -615,6 +618,15 @@ namespace {
 		uint16_t targetNumTxBufferedBlocks = uint16_t(targetNoSamples/AUDIO_BLOCK_SAMPLES);
 		count = AUDIO_BLOCK_SAMPLES-(targetNoSamples-targetNumTxBufferedBlocks*AUDIO_BLOCK_SAMPLES);
 		idx = (incomingIdx -(targetNumTxBufferedBlocks+1)+USBAudioOutInterface::ringTxBufferSize)%USBAudioOutInterface::ringTxBufferSize;
+	}
+
+	void resetStatusCounter(){
+		num_skipped_Samples=0;
+		num_padded_Samples=0;
+		num_send_one_less=0;
+		num_send_one_more=0;
+		txUsb_audio_underrun_count=0;
+		txUsb_audio_overrun_count=0;
 	}
 }
 double USBAudioOutInterface::updateCurrentSmooth=-1.;
@@ -687,6 +699,8 @@ USBAudioOutInterface::Status USBAudioOutInterface::getStatus() const{
 	status.bInterval_uS = audioPollingIntervaluS;
 	status.num_skipped_Samples = num_skipped_Samples;
 	status.num_padded_Samples = num_padded_Samples;
+	status.num_send_one_less = num_send_one_less;
+	status.num_send_one_more = num_send_one_more;
 	status.usb_high_speed = usb_high_speed;
 	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
 	return status;
@@ -720,10 +734,7 @@ void USBAudioOutInterface::update(int16_t& bIdx, uint16_t& noChannels)
 		BufferState s = txBufferState;
 	__enable_irq();
 	if(!_streaming){
-		num_skipped_Samples=0;
-		num_padded_Samples=0;
-		txUsb_audio_underrun_count=0;
-		txUsb_audio_overrun_count=0;
+		resetStatusCounter();
 		bufferedTxSamplesSmooth=0.f;
 		bufferedTxSamples=0.f;
 	}
@@ -914,10 +925,7 @@ void usb_audio_configure(void)
 	lastCallReceiveIsr.reset(expectedIsrIntervalCycles);
 
 	//AudioOutputUSB	==============================
-	num_skipped_Samples=0;
-	num_padded_Samples=0;
-	txUsb_audio_underrun_count=0;
-	txUsb_audio_overrun_count=0;
+	resetStatusCounter();
 	//=================================================
 }
 
