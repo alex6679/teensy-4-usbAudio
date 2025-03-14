@@ -783,12 +783,7 @@ unsigned int usb_audio_transmit_callback(void)
 		return 0;
 	}
 
-	transmit_flag =1;	//indicates that we received data
-
-	//async: if true, the output behaves like an asynchronous endpoint, and like an adaptive one otherwise
-	//asynchronous should be used since we need to pad or skip samples otherwise.
-    constexpr bool async=true;
-	
+	transmit_flag =1;	//indicates that we received data	
 	//time measurement (needed for the computation of virtual samples)
 	uint32_t current =ARM_DWT_CYCCNT;
 	lastCallTransmitIsr.addCall(current);
@@ -832,11 +827,11 @@ unsigned int usb_audio_transmit_callback(void)
 		}
 		txBufferState=USBAudioOutInterface::ready;
 	}
-    
-    if(async && devCounter == devCounterThrs){
+#ifdef ASYNC_TX_ENDPOINT
+    if(devCounter == devCounterThrs){
         updateTarget(sign, devCounter, target);
     }	
-	
+#endif
 	uint32_t len=0;
 	uint8_t *data = usb_audio_transmit_buffer;
 	while (len < target) {
@@ -866,9 +861,11 @@ unsigned int usb_audio_transmit_callback(void)
 		data += num*noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
 		len+=num;
 		offset+=num;
-		if(!async && devCounter == devCounterThrs){
+#ifndef ASYNC_TX_ENDPOINT
+		if(devCounter == devCounterThrs){
 			updateBufferOffset(sign, devCounter, offset);
 		}
+#endif
 		if (offset >= AUDIO_BLOCK_SAMPLES) {
 			USBAudioOutInterface::tryIncreaseIdxTransmission(tBIdx,offset);
 		}
