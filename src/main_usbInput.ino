@@ -18,8 +18,6 @@ AudioConnection          patchCordPlotter2(usb1, 2, plotter, 1);
 uint16_t expectedBIntervalUs;
 void setup() {                
   AudioMemory(50);
-  Serial.begin(115200);
-  while (!Serial){};
 #ifdef PLOT_SIGNAL
   plotter.activate(true);
 #endif

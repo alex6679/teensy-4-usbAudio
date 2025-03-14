@@ -5,6 +5,7 @@
 //#define PLOT_BUFFER             //use Arduino Serial Plotter
 //#define PLOT_BINTERVAL            //use Arduino Serial Plotter
 #define PRINT_USBOUTPUT_STATUS   //prints information like number of buffer over and underruns
+const int ledPin = 13;
 
 AudioSynthWaveform       audioSynth0;
 AudioSynthWaveform       audioSynth1;
@@ -36,14 +37,14 @@ AudioSynthWaveform* wavs[] = {
 };
 
 uint16_t expectedBIntervalUs;
-void setup() {                
+void setup() {    
+    // initialize the digital pin as an output.
+    pinMode(ledPin, OUTPUT);      
   AudioMemory(80);
   for (int i=0;i<8;i++) {
     wavs[i]->begin(0.5f,220.0f + 110.0f*i,WAVEFORM_TRIANGLE);
     wavs[i]->phase(15.0f*i);
   }
-  Serial.begin(115200);
-  while (!Serial){};
   // delay(5000);
   // printRequestBuffer(); // only used for debugging the usb requests from the host at the initialization
   USBAudioOutInterface::Status status = usb1.getStatus();
@@ -84,8 +85,15 @@ void loop() {
     Serial.println(status.num_padded_Samples);
     Serial.print("num_skipped_Samples : ");
     Serial.println(status.num_skipped_Samples);
+    Serial.print("num_send_one_more : ");
+    Serial.println(status.num_send_one_more);
+    Serial.print("num_send_one_less : ");
+    Serial.println(status.num_send_one_less);
     Serial.print("max memory: ");
     Serial.println((AudioMemoryUsageMax()));
     delay(1000);
+    digitalWrite(ledPin, HIGH);   // set the LED on
+    delay(1000);                  // wait for a second
+    digitalWrite(ledPin, LOW);    // set the LED off
 #endif
 }
