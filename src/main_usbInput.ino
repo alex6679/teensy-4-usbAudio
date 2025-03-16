@@ -11,7 +11,7 @@
 //#define PRINT_USBINPUT_STATUS   //prints information like number of buffer over and underruns
 
 AudioInputUSB            usb1;          
-AudioOutputI2S           i2s1;        
+AudioOutputI2S           i2s1;     //only needed for update_responsibilty      
 Plotter                  plotter(4);  //only plot every 4th sample
 AudioConnection          patchCordPlotter1(usb1, 0, plotter, 0);
 AudioConnection          patchCordPlotter2(usb1, 2, plotter, 1);

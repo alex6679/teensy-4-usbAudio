@@ -16,7 +16,7 @@ AudioSynthWaveform       audioSynth5;
 AudioSynthWaveform       audioSynth6;
 AudioSynthWaveform       audioSynth7;
 AudioOutputUSB           usb1;           
-AudioOutputI2S           i2s1;          
+AudioOutputI2S           i2s1;     //only needed for update_responsibilty      
 AudioConnection          patchCord1(audioSynth0, 0, usb1, 0);
 AudioConnection          patchCord2(audioSynth1, 0, usb1, 1);
 AudioConnection          patchCord3(audioSynth2, 0, usb1, 2);
