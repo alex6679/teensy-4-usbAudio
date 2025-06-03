@@ -3,23 +3,21 @@
 #include "set_usb_string_serial_number.h"
 
 //activate one of the four options
-//#define PLOT_SIGNAL             //use Arduino Serial Plotter
+#define PLOT_SIGNAL             //use Arduino Serial Plotter
 //#define PLOT_BUFFER             //use Arduino Serial Plotter
 //#define PLOT_REQUEST_FRREQ      //use Arduino Serial Plotter
 //#define PLOT_BINTERVAL          //use Arduino Serial Plotter
-#define PRINT_VOL_CHANGES         //prints volume changes, use Serial Monitor
+//#define PRINT_VOL_CHANGES         //prints volume changes, use Serial Monitor
 //#define PRINT_USBINPUT_STATUS   //prints information like number of buffer over and underruns
 
 AudioInputUSB            usb1;          
-AudioOutputI2S           i2s1;        
+AudioOutputI2S           i2s1;     //only needed for update_responsibilty      
 Plotter                  plotter(4);  //only plot every 4th sample
 AudioConnection          patchCordPlotter1(usb1, 0, plotter, 0);
 AudioConnection          patchCordPlotter2(usb1, 2, plotter, 1);
 uint16_t expectedBIntervalUs;
 void setup() {                
   AudioMemory(50);
-  Serial.begin(115200);
-  while (!Serial){};
 #ifdef PLOT_SIGNAL
   plotter.activate(true);
 #endif
