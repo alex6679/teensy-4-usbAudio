@@ -775,13 +775,20 @@ float USBAudioOutInterface::getBufferedSamplesSmooth() const{
 }
 
 // Called from the USB interrupt when ready to transmit another
-// isochronous packet.  If we place data into the transmit buffer,
-// the return is the number of bytes.  Otherwise, return 0 means
-// no data to transmit
+// isochronous packet.
+// the return is the number of bytes to transmit
 unsigned int usb_audio_transmit_callback(void)
 {	
+	//compute the number of samples we want to transmit (at 44.1kHz and a bInterval of 1ms that is either 44 or 45 samples)
+	uint32_t target = getTransmissionTarget();
 	if(!USBAudioOutInterface::running){
-		return 0;
+		//Some hosts (Linux, Windows) would tolerate zero length data packages.
+		//However, sometimes there are troubles with MacOs.
+		//So we better always send the expected number of samples.
+		const uint32_t numBytes =target*noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
+		uint8_t *data = usb_audio_transmit_buffer;
+		memset(data, 0, numBytes);
+		return target * noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
 	}
 
 	transmit_flag =1;	//indicates that we received data	
@@ -790,8 +797,6 @@ unsigned int usb_audio_transmit_callback(void)
 	lastCallTransmitIsr.addCall(current);
 	//================================================================
 
-	//compute the number of samples we want to transmit (at 44.1kHz and a bInterval of 1ms that is either 44 or 45 samples)
-	uint32_t target = getTransmissionTarget();
 	
 	const uint16_t iBIdx = incoming_tx_bIdx;	//we are not allowed to change incoming_tx_bIdx 
 	uint16_t tBIdx = transmit_tx_bIdx;
