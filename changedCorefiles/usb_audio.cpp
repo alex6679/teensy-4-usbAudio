@@ -83,7 +83,7 @@ float AudioInputUSB::volume(void){
 }
 #if AUDIO_SUBSLOT_SIZE==2
 void AudioInputUSB::copy_to_buffers(const uint8_t *src, uint16_t bIdx, uint16_t noChannels, unsigned int count, unsigned int len) {
-	const uint16_t *src16Bit =(const uint16_t *)src;
+	const int16_t *src16Bit =(const int16_t *)src;
 	for (uint32_t i =0; i< len; i++){
 		for (uint16_t j =0; j< noChannels; j++){
 			rxBuffer[bIdx][j]->data[count +i]=*src16Bit++;
@@ -97,8 +97,9 @@ void AudioInputUSB::copy_to_buffers(const uint8_t *src, uint16_t bIdx, uint16_t 
 	for (uint32_t i =0; i< len; i++){
 		for (uint16_t j =0; j< noChannels; j++){
 			++src;
-			rxBuffer[bIdx][j]->data[count +i]=(*src++);
-			rxBuffer[bIdx][j]->data[count +i] |=(*src++)<<8;
+			const int16_t *src16Bit =(const int16_t *)src;
+			rxBuffer[bIdx][j]->data[count +i]=*src16Bit;
+			src += 2;
 		}
 	}
 }
@@ -208,7 +209,7 @@ USBAudioOutInterface::Status AudioOutputUSB::getStatus() const{
 }
 #if AUDIO_SUBSLOT_SIZE==2
 void AudioOutputUSB::copy_from_buffers(uint8_t *dst, uint16_t bIdx, uint16_t noChannels, unsigned int count, unsigned int len) {
-	uint16_t* dst16Bit = (uint16_t*)dst;
+	int16_t* dst16Bit = (int16_t*)dst;
 	for (uint32_t i =0; i< len; i++){
 		for (uint16_t j =0; j< noChannels; j++){
 			*dst16Bit++ =txBuffer[bIdx][j]->data[count +i];
@@ -222,8 +223,9 @@ void AudioOutputUSB::copy_from_buffers(uint8_t *dst, uint16_t bIdx, uint16_t noC
 	for (uint32_t i =0; i< len; i++){
 		for (uint16_t j =0; j< noChannels; j++){
 			*dst++ =0;
-			*dst++ =((txBuffer[bIdx][j]->data[count +i])) & 255;
-			*dst++ =((txBuffer[bIdx][j]->data[count +i]) >> 8) & 255;
+			int16_t* dst16Bit = (int16_t*)dst;
+			*dst16Bit =txBuffer[bIdx][j]->data[count +i];
+			dst += 2;
 		}
 	}
 }
