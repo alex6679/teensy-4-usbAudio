@@ -52,3 +52,13 @@ teensy40.menu.USBchannelcount.6=6
 teensy40.menu.USBchannelcount.6.build.flags.USBchannelcount=6
 teensy40.menu.USBchannelcount.8=8
 teensy40.menu.USBchannelcount.8.build.flags.USBchannelcount=8
+
+menu.USBslotsize=USB framebytes
+teensy41.menu.USBslotsize.2=2 bytes (16 bits)
+teensy41.menu.USBslotsize.2.build.flags.USBslotsize=2
+teensy41.menu.USBslotsize.3=3 bytes (24 bits)
+teensy41.menu.USBslotsize.3.build.flags.USBslotsize=3
+teensy40.menu.USBslotsize.2=2 bytes (16 bits)
+teensy40.menu.USBslotsize.2.build.flags.USBslotsize=2
+teensy40.menu.USBslotsize.3=3 bytes (24 bits)
+teensy40.menu.USBslotsize.3.build.flags.USBslotsize=3
