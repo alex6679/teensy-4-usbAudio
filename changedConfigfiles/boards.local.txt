@@ -53,6 +53,16 @@ teensy40.menu.USBchannelcount.6.build.flags.USBchannelcount=6
 teensy40.menu.USBchannelcount.8=8
 teensy40.menu.USBchannelcount.8.build.flags.USBchannelcount=8
 
+menu.USBsampleformat=USB sample format
+teensy41.menu.USBsampleformat.1=PCM
+teensy41.menu.USBsampleformat.1.build.flags.USBsampleformat=1
+teensy41.menu.USBsampleformat.4=IEEE_FLOAT
+teensy41.menu.USBsampleformat.4.build.flags.USBsampleformat=4
+teensy40.menu.USBsampleformat.1=PCM
+teensy40.menu.USBsampleformat.1.build.flags.USBsampleformat=1
+teensy40.menu.USBsampleformat.4=IEEE_FLOAT
+teensy40.menu.USBsampleformat.4.build.flags.USBsampleformat=4
+
 menu.USBsubslotsize=USB frame size
 teensy41.menu.USBsubslotsize.2=2 bytes (16 bits)
 teensy41.menu.USBsubslotsize.2.build.flags.USBsubslotsize=2
