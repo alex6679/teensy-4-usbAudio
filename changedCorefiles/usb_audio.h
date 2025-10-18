@@ -92,7 +92,7 @@ protected:
 	{
 	#if AUDIO_USB_FORMAT == 1 // PCM
 		#if AUDIO_SUBSLOT_SIZE>=2 && AUDIO_SUBSLOT_SIZE<=4
-			for(int k = 0; k < AUDIO_SUBSLOT_SIZE-sizeof(sample_t); ++k)
+			for(uint16_t k = 0; k < AUDIO_SUBSLOT_SIZE-sizeof(sample_t); ++k)
 				*dst++ = 0; // zero low bytes
 			*(sample_t *)dst = *src;
 		#else
