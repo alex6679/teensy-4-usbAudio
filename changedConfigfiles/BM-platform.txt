@@ -18,8 +18,10 @@ build.flags.audioblocksize=128
 build.flags.audiorate=44100.0f
 build.flags.audiorateI=44100
 build.flags.USBchannelcount=2
+build.flags.USBsampleformat=1
+build.flags.USBsubslotsize=2
 
-build.flags.audio=-DAUDIO_BLOCK_SAMPLES={build.flags.audioblocksize} -DAUDIO_SAMPLE_RATE_EXACT={build.flags.audiorate} -DAUDIO_SAMPLE_RATE_I={build.flags.audiorateI} -DAUDIO_USB_CHANNEL_COUNT={build.flags.USBchannelcount}
+build.flags.audio=-DAUDIO_BLOCK_SAMPLES={build.flags.audioblocksize} -DAUDIO_SAMPLE_RATE_EXACT={build.flags.audiorate} -DAUDIO_SAMPLE_RATE_I={build.flags.audiorateI} -DAUDIO_USB_CHANNEL_COUNT={build.flags.USBchannelcount} -DAUDIO_USB_FORMAT={build.flags.USBsampleformat} -DAUDIO_SUBSLOT_SIZE={build.flags.USBsubslotsize}
 
 ## Debugger - Experimental
 #debug.executable={build.path}/{build.project_name}.elf
