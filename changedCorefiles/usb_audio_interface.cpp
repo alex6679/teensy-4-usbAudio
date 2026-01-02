@@ -598,29 +598,39 @@ namespace {
 	}
 
 	uint32_t getTransmissionTarget(){
-		//Depending on the sampling frequency and the bInterval, we compute the number of samples that need to be transmitted.
-		//at 44.1 kHz and 1ms bInterval this function returns 9 times 44 samples and then 45 samples
-		//at e.g. 188.4 kHz and 1ms bInterval the output is more 'complex': three times 188, once 189, two times 188, once 189,... cycle starts again 
-		//This function does not take into account the current number of buffered samples, i.e. it does not change the target number of samples
-		//in order to prevnt buffer over- and underruns
-		static uint32_t count=0;
-		static uint32_t correction =0;
+		// Depending on the sampling frequency and the bInterval, we compute the number of samples that need to be transmitted.
+		//
+		// At 44.1 kHz and 1ms bInterval this function returns 9 times 44 samples and then 45 samples;
+		// at e.g. 188.4 kHz and 1ms bInterval the output is more 'complex': 
+		// three times 188, once 189, two times 188, once 189,... cycle starts again 
+		//
+		// This function does not take into account the current number of buffered samples, i.e. it does not change the target 
+		// number of samples in order to prevent buffer over- and under-runs
+
+		static uint32_t count = 0;
+		static uint32_t correction = 0;
+
+		// For some weird sample rates (e.g. 44117Hz) the cycle termination calculation could overflow, so
+		// we do it in terms of microframes rather than microseconds
+		const uint32_t audioPollingIntervalFrames = audioPollingIntervaluS / MICROFRAME_US;
+		const uint32_t framesToSamples = 1'000'000 / MICROFRAME_US;
+
 		//compute how many samples we have to transmit ===============
 		//number of samples that should be transmitted after 'count' executions of usb_audio_transmit_callback
-		uint32_t expected = (count * samplingRate *audioPollingIntervaluS) / 1000000;
+		uint32_t expected = (count * samplingRate * audioPollingIntervalFrames) / framesToSamples;
 		//number of samples that were actual transmitted after 'count' executions of usb_audio_transmit_callback
-		uint32_t actual = count *noSamplesPerPollingInterval+correction;
+		uint32_t actual = count * noSamplesPerPollingInterval + correction;
 
 		uint32_t missingSamples = expected-actual;
-		uint32_t target=noSamplesPerPollingInterval;
+		uint32_t target = noSamplesPerPollingInterval;
 		if(missingSamples != 0){// TODO: dynamic adjust to match USB rate
 			correction++;
 			target++;
 		}
-		bool cycleFinished = (count*samplingRate*audioPollingIntervaluS)%1000000 ==0;
+		bool cycleFinished = (count*samplingRate*audioPollingIntervalFrames) % framesToSamples == 0;
 		if(cycleFinished){
-			count=0;
-			correction =0;
+			count = 0;
+			correction = 0;
 		}
 		count++;
 		return target;
@@ -930,20 +940,20 @@ void usb_audio_configure(void)
 	incoming_rx_bIdx=0;
 	transmit_rx_bIdx=0;
 	if (usb_high_speed) {
-		noTransmittedChannels = USB_AUDIO_NO_CHANNELS_480;
+		noTransmittedChannels   = USB_AUDIO_NO_CHANNELS_480;
 		audioPollingIntervalSec = AUDIO_POLLING_INTERVAL_480_SEC;
-		audioPollingIntervaluS = AUDIO_NUM_SUBFRAMES_PER_POLLING_480 *125;
-		usb_audio_sync_nbytes = 4;
-		usb_audio_sync_rshift = 8;
+		audioPollingIntervaluS  = AUDIO_NUM_SUBFRAMES_PER_POLLING_480 * MICROFRAME_US;
+		usb_audio_sync_nbytes   = 4;
+		usb_audio_sync_rshift   = 8;
 	} else {
-		noTransmittedChannels = USB_AUDIO_NO_CHANNELS_12;
+		noTransmittedChannels   = USB_AUDIO_NO_CHANNELS_12;
 		audioPollingIntervalSec = AUDIO_POLLING_INTERVAL_12_SEC;
-		audioPollingIntervaluS = AUDIO_NUM_SUBFRAMES_PER_POLLING_12*125;
-		usb_audio_sync_nbytes = 3;
-		usb_audio_sync_rshift = 10;
+		audioPollingIntervaluS  = AUDIO_NUM_SUBFRAMES_PER_POLLING_12 * MICROFRAME_US;
+		usb_audio_sync_nbytes   = 3;
+		usb_audio_sync_rshift   = 10;
 	}
 
-	noSamplesPerPollingInterval = (samplingRate*audioPollingIntervaluS)/1000000;
+	noSamplesPerPollingInterval = (samplingRate*audioPollingIntervaluS)/1'000'000;
 
 	feedback_accumulator_default = uint32_t((samplingRate *audioPollingIntervalSec) * 0x1000000 +0.5f);
 	feedback_accumulator = feedback_accumulator_default;
