@@ -38,6 +38,7 @@
 
 #define FEATURE_MAX_VOLUME 0xFF  // volume accepted from 0 to 0xFF
 #define TARGET_RX_BUFFER_TIME_S 0.0018f	//targeted buffered time (latency) in seconds
+#define MICROFRAME_US 125 // defined by the USB standard
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,7 +74,7 @@ public:
 		uint16_t num_transmitted_channels;		//How many audio channels do we receive (might be smaller than expected in case the 12Mbit/s bandwidth limits the number of channels)
 		uint16_t ring_buffer_size;				//Number of audio blocks per channel in the ring buffer (received audio data from the host is stored in this buffer)
 		uint16_t usb_rx_tx_buffer_size;			//=AUDIO_RX_SIZE_480 or AUDIO_RX_SIZE_12 (bytes, must be larger than AUDIO_SAMPLE_RATE * bInterval_uS*1e-6 * USB_AUDIO_NO_CHANNELS_480 * AUDIO_SUBSLOT_SIZE 
-		uint16_t bInterval_uS;					//polling interval as requested by the Teensy (125, 256, 512 or 1024)
+		uint16_t bInterval_uS;					//polling interval as requested by the Teensy (125, 250, 500 or 1000)
 		bool receivingData;						//Teensy is currently receiving data (There was at least one 'usb_audio_receive_callback' since the last 'update' call)
 		uint8_t usb_high_speed;					// 1 for high speed, 0 otherwise
 	};
