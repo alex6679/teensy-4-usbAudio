@@ -967,9 +967,22 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
 #endif // USB_DESC_LIST_DEFINE
 
 #ifdef AUDIO_INTERFACE
-  #ifndef AUDIO_SUBSLOT_SIZE
-  #define AUDIO_SUBSLOT_SIZE 2 //size of an audio sample in bytes (possible values: 1,2,3 or 4)
+  #ifndef AUDIO_USB_FORMAT
+  #define AUDIO_USB_FORMAT 1 // 1...PCM, 4...IEEE_FLOAT
   #endif
+
+  #if AUDIO_USB_FORMAT == 4
+    #if AUDIO_SUBSLOT_SIZE != 4
+      #warning "For AUDIO_USB_FORMAT==4 (IEEE_FLOAT), AUDIO_SUBSLOT_SIZE needs to be 4 (32 bits)"
+    #endif
+    #undef AUDIO_SUBSLOT_SIZE
+    #define AUDIO_SUBSLOT_SIZE 4
+  #else
+    #ifndef AUDIO_SUBSLOT_SIZE
+      #define AUDIO_SUBSLOT_SIZE 2 //size of an audio sample in bytes (possible values: 1,2,3 or 4)
+    #endif
+  #endif
+
   #define AUDIO_BITRESOLUTION (8*AUDIO_SUBSLOT_SIZE)
   
   #define USB_AUDIO_CHANNEL_FL  (1<<0)
@@ -995,19 +1008,20 @@ extern const usb_descriptor_list_t usb_descriptor_list[];
 	#define USB_AUDIO_NO_CHANNELS_480 8 // ...or hand-edit it
   #endif // defined(AUDIO_USB_CHANNEL_COUNT)
   
+  #ifndef CHANNEL_CONFIG_480
   #if USB_AUDIO_NO_CHANNELS_480 == 2
       #define CHANNEL_CONFIG_480  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR)
-  #endif
-  #if USB_AUDIO_NO_CHANNELS_480 == 4
+  #elif USB_AUDIO_NO_CHANNELS_480 == 4
         #define CHANNEL_CONFIG_480  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_BL | USB_AUDIO_CHANNEL_BR)
-  #endif
-  #if USB_AUDIO_NO_CHANNELS_480 == 6
+  #elif USB_AUDIO_NO_CHANNELS_480 == 6
         #define CHANNEL_CONFIG_480  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_C | USB_AUDIO_CHANNEL_LFE | USB_AUDIO_CHANNEL_SL | USB_AUDIO_CHANNEL_SR)
-  #endif
-  #if USB_AUDIO_NO_CHANNELS_480 == 8
+  #elif USB_AUDIO_NO_CHANNELS_480 == 8
         #define CHANNEL_CONFIG_480  (USB_AUDIO_CHANNEL_FL | USB_AUDIO_CHANNEL_FR |USB_AUDIO_CHANNEL_C | USB_AUDIO_CHANNEL_LFE | USB_AUDIO_CHANNEL_BL | USB_AUDIO_CHANNEL_BR | USB_AUDIO_CHANNEL_SL | USB_AUDIO_CHANNEL_SR)
+  #else
+        // no channel description
+        #define CHANNEL_CONFIG_480 0
   #endif
-
+  #endif
   
   #define BANDWIDTH_BYTES_PER_SEC_480 AUDIO_SAMPLE_RATE_I * AUDIO_SUBSLOT_SIZE * USB_AUDIO_NO_CHANNELS_480
   #if BANDWIDTH_BYTES_PER_SEC_480 <= 1024000*8
