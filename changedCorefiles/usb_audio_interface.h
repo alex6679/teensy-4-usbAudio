@@ -152,7 +152,7 @@ public:
 		uint16_t num_transmitted_channels;	//How many audio channels do we transmit (might be smaller than expected in case the 12Mbit/s bandwidth limits the number of channels)
 		uint16_t ring_buffer_size;			//Number of audio blocks per channel in the ring buffer (audio blocks from the Teensy are stored in this buffer, before the data is sent to the host.)
 		uint16_t usb_rx_tx_buffer_size;		//=AUDIO_TX_SIZE_480 or AUDIO_TX_SIZE_12 (bytes, must be larger than AUDIO_SAMPLE_RATE * bInterval_uS*1e-6 * USB_AUDIO_NO_CHANNELS_480 * AUDIO_SUBSLOT_SIZE 
-		uint16_t bInterval_uS;				//polling interval as requested by the Teensy (125, 256, 512 or 1024)
+		uint16_t bInterval_uS;				//polling interval as requested by the Teensy (125, 250, 500 or 1000)
 		uint32_t num_skipped_Samples;		//only used if not ASYNC_TX_ENDPOINT (->adaptive endpoint)	In usb_audio_transmit_callback: how often was a sample skipped to prevent a buffer overrun.
 		uint32_t num_padded_Samples;		//only used if not ASYNC_TX_ENDPOINT (->sdaptive endpoint)	In usb_audio_transmit_callback: how often was a sample padded to prevent a buffer underrun.
 		uint32_t num_send_one_less;			//only used if ASYNC_TX_ENDPOINT (-> asynchronous endpoint)	In usb_audio_transmit_callback: how often was a sample less than initially planned sent to prevent a buffer underrun.

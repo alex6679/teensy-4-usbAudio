@@ -605,34 +605,28 @@ namespace {
 		// three times 188, once 189, two times 188, once 189,... cycle starts again 
 		//
 		// This function does not take into account the current number of buffered samples, i.e. it does not change the target 
-		// number of samples in order to prevent buffer over- and under-runs
+		// number of samples in order to prevent buffer over- and under-runs.
+		// It's just a version of the Bresenham-Algorithm
 
-		static uint32_t count = 0;
-		static uint32_t correction = 0;
+		const uint32_t N = samplingRate * audioPollingIntervaluS;
+		const uint32_t denominator = 1'000'000;
 
-		// For some weird sample rates (e.g. 44117Hz) the cycle termination calculation could overflow, so
-		// we do it in terms of microframes rather than microseconds
-		const uint32_t audioPollingIntervalFrames = audioPollingIntervaluS / MICROFRAME_US;
-		const uint32_t framesToSamples = 1'000'000 / MICROFRAME_US;
+		//target is first set to the default number of samples we send per frame.
+		//e.g. if samplingRate=44100 and audioPollingIntervaluS=1000 then base = 44
+		uint32_t target = N / denominator;	
 
-		//compute how many samples we have to transmit ===============
-		//number of samples that should be transmitted after 'count' executions of usb_audio_transmit_callback
-		uint32_t expected = (count * samplingRate * audioPollingIntervalFrames) / framesToSamples;
-		//number of samples that were actual transmitted after 'count' executions of usb_audio_transmit_callback
-		uint32_t actual = count * noSamplesPerPollingInterval + correction;
-
-		uint32_t missingSamples = expected-actual;
-		uint32_t target = noSamplesPerPollingInterval;
-		if(missingSamples != 0){// TODO: dynamic adjust to match USB rate
-			correction++;
-			target++;
+		//rem is the reminder of the devision 'N / denominator'. It represents the fractional samples (but multiplied by denominator).
+		uint32_t rem  = N % denominator;        
+		
+		//we accumulate the 'fractional' samples by means of the errorAccumulator. 0 <=errorAccumulator < denominator
+		static uint32_t errorAccumulator = 0;                   
+		errorAccumulator+=rem;
+		
+		if (errorAccumulator >= denominator)
+		{
+			errorAccumulator -= denominator;
+			target += 1;
 		}
-		bool cycleFinished = (count*samplingRate*audioPollingIntervalFrames) % framesToSamples == 0;
-		if(cycleFinished){
-			count = 0;
-			correction = 0;
-		}
-		count++;
 		return target;
 	}
 	
