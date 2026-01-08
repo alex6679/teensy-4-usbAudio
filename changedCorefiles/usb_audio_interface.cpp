@@ -636,8 +636,8 @@ namespace {
 		return target;
 	}
 	
-	void resetTransmissionIndex(float virtualSamples, uint16_t incomingIdx, uint16_t& idx, uint16_t& count){
-		uint16_t targetNoSamples =uint16_t(targetNumTxBufferedSamples+noSamplesPerPollingInterval-virtualSamples  + 0.f);	//+noSamplesPerPollingInterval because we will immediatelly transmit 'noSamplesPerPollingInterval' samples
+	void resetTransmissionIndex(float virtualSamples, uint16_t incomingIdx, uint16_t& idx, uint16_t& count, uint16_t numSentSamples){
+		uint16_t targetNoSamples =uint16_t(targetNumTxBufferedSamples+numSentSamples-virtualSamples  + 0.f);	//+numSentSamples because we will immediatelly transmit 'numSentSamples' samples
 		uint16_t targetNumTxBufferedBlocks = uint16_t(targetNoSamples/AUDIO_BLOCK_SAMPLES);
 		count = AUDIO_BLOCK_SAMPLES-(targetNoSamples-targetNumTxBufferedBlocks*AUDIO_BLOCK_SAMPLES);
 		idx = (incomingIdx -(targetNumTxBufferedBlocks+1)+USBAudioOutInterface::ringTxBufferSize)%USBAudioOutInterface::ringTxBufferSize;
@@ -777,11 +777,17 @@ void USBAudioOutInterface::incrementBufferIndex(){
 	__enable_irq();
 }
 void USBAudioOutInterface::tryIncreaseIdxTransmission(uint16_t& tBIdx, uint16_t& offset){
-	USBAudioOutInterface::releaseBlocks(tBIdx, noTransmittedChannels);			
-	uint16_t idxCandidate =(tBIdx+1)%ringTxBufferSize;
-	if(idxCandidate != incoming_tx_bIdx){
-		tBIdx =(tBIdx+1)%ringTxBufferSize;
-		offset=0;
+	while (offset >= AUDIO_BLOCK_SAMPLES){
+		USBAudioOutInterface::releaseBlocks(tBIdx, noTransmittedChannels);			
+		uint16_t idxCandidate =(tBIdx+1)%ringTxBufferSize;
+		if(idxCandidate != incoming_tx_bIdx){
+			tBIdx = idxCandidate;
+			offset -=AUDIO_BLOCK_SAMPLES;
+		}
+		else {
+			offset = AUDIO_BLOCK_SAMPLES;	 //we make sure that offset is never larger than AUDIO_BLOCK_SAMPLES!
+			break;
+		}
 	}
 }
 float USBAudioOutInterface::getBufferedSamples() const{
@@ -853,17 +859,10 @@ unsigned int usb_audio_transmit_callback(void)
 	if(txBufferState == USBAudioOutInterface::overrun || streamStart){
 		streamStart=false;
 		devCounter=0;
-		resetTransmissionIndex(virtualSamples, iBIdx, tBIdx, offset);		
-		for (uint16_t idx=tBIdx; idx != iBIdx;){
-			if (idx)
-				idx--;
-			else
-				idx = USBAudioOutInterface::ringTxBufferSize - 1;
-			USBAudioOutInterface::releaseBlocks(idx, noTransmittedChannels);
-		}
+		resetTransmissionIndex(virtualSamples, iBIdx, tBIdx, offset, noSamplesPerPollingInterval);		
+		USBAudioOutInterface::releaseBlocks(tBIdx, noTransmittedChannels);		
 		txBufferState=USBAudioOutInterface::ready;
 	}
-float samplesAvail = getNumBufferedTxSamples(txBufferState, 0, iBIdx, tBIdx, offset); // actual samples available
 #ifdef ASYNC_TX_ENDPOINT
     if(devCounter == devCounterThrs){
         updateTarget(sign, devCounter, target);
@@ -871,56 +870,42 @@ float samplesAvail = getNumBufferedTxSamples(txBufferState, 0, iBIdx, tBIdx, off
 #endif
 	uint32_t len=0;
 	uint8_t *data = usb_audio_transmit_buffer;
-	if (true || samplesAvail > target)
-	{
-		while (len < target) {
-			uint32_t num = target - len;
-			uint32_t avail = AUDIO_BLOCK_SAMPLES - offset;
-			if( avail==0 ||	!USBAudioOutInterface::isBlockReady(tBIdx,0)){
-				//Something went wrong. We either did not receive a block, or a buffer underrun occured.
-				//We will reset the buffer indices and offsets and transmit zeros.
-				if( avail==0){
-					devCounter=0;	//only reset in case of an underrun and not if USBAudioOutInterface did not receive data in 'update'
-					txUsb_audio_underrun_count++;
-					resetTransmissionIndex(virtualSamples, iBIdx, tBIdx, offset);		
-					for (uint16_t idx=tBIdx; idx != iBIdx;){
-						if (idx)
-							idx--;
-						else
-							idx = USBAudioOutInterface::ringTxBufferSize - 1;
-						USBAudioOutInterface::releaseBlocks(idx, noTransmittedChannels);
-					}
-				}
-				const uint32_t numBytes = num*noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
-				memset(data, 0, numBytes);
+
+	while (len < target) {
+		uint32_t num = target - len;
+		uint32_t avail = AUDIO_BLOCK_SAMPLES - offset;
+		if( avail==0 ||	!USBAudioOutInterface::isBlockReady(tBIdx,0)){
+			//Something went wrong. We either did not receive a block, or a buffer underrun occured.
+			//We will reset the buffer indices and offsets and transmit zeros.
+			if( avail==0){
+				devCounter=0;	//only reset in case of an underrun and not if USBAudioOutInterface did not receive data in 'update'
+				txUsb_audio_underrun_count++;
+				resetTransmissionIndex(virtualSamples, iBIdx, tBIdx, offset, num);		
 			}
-			else {
-				if (num > avail){
-					num = avail;
-				}
-				USBAudioOutInterface::copy_from_buffer(data, tBIdx, noTransmittedChannels, offset, num);
-		
-			}
-			data += num*noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
-			len+=num;
-			offset+=num;
-	#ifndef ASYNC_TX_ENDPOINT
-			if(devCounter == devCounterThrs){
-				updateBufferOffset(sign, devCounter, offset);
-			}
-	#endif
-			if (offset >= AUDIO_BLOCK_SAMPLES) {
-				USBAudioOutInterface::tryIncreaseIdxTransmission(tBIdx,offset);
-			}
+			const uint32_t numBytes = num*noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
+			memset(data, 0, numBytes);
 		}
-		transmit_tx_bIdx=tBIdx;
-		USBAudioOutInterface::outgoing_count = offset;
+		else {
+			if (num > avail){
+				num = avail;
+			}
+			USBAudioOutInterface::copy_from_buffer(data, tBIdx, noTransmittedChannels, offset, num);	
+		}
+		data += num*noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
+		len+=num;
+		offset+=num;	//num can be larger than 'AUDIO_BLOCK_SAMPLES' in case of 'avail==0 ||	!USBAudioOutInterface::isBlockReady(tBIdx,0)'
+#ifndef ASYNC_TX_ENDPOINT
+		if(devCounter == devCounterThrs){
+			updateBufferOffset(sign, devCounter, offset);
+		}
+#endif
+		if (offset >= AUDIO_BLOCK_SAMPLES) {
+			USBAudioOutInterface::tryIncreaseIdxTransmission(tBIdx,offset);
+		}
 	}
-	else // not enough data - transmit silence
-	{
-		const uint32_t numBytes = target*noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
-		memset(data, 0, numBytes);
-	}
+	transmit_tx_bIdx=tBIdx;
+	USBAudioOutInterface::outgoing_count = offset;
+
 	return target * noTransmittedChannels*AUDIO_SUBSLOT_SIZE;
 }
 #endif
