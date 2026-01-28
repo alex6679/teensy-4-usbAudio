@@ -58,6 +58,7 @@
 #include "Arduino.h"
 #include <stdio.h>  // for NULL
 #include <string.h> // for memcpy
+
 #endif
 
 // AUDIO_BLOCK_SAMPLES determines how many samples the audio library processes
@@ -122,7 +123,7 @@ protected:
 
 
 #define AudioMemory(num) ({ \
-	static DMAMEM audio_block_t data[num]; \
+	static DMAMEM __attribute__((aligned(4))) audio_block_t data[num]; \
 	AudioStream::initialize_memory(data, num); \
 })
 
