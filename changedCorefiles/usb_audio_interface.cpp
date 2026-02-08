@@ -240,9 +240,9 @@ void USBAudioInInterface::begin(){
 
 float USBAudioInInterface::getActualBIntervalUs() const {
 	float toUS =1000000.f/F_CPU_ACTUAL;
-	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
+__disable_irq();
 	float bInterval= (float)lastCallReceiveIsr.getLastDuration()*toUS;
-	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
+__enable_irq();
 	return bInterval;
 }
 
@@ -352,11 +352,9 @@ bool USBAudioInInterface::resetBuffer(double updateCurrentSmooth){
 
 	//first we estimate when the last USB samples arrived
 	double timeSinceLastUSBPaket=0.;
-	History<7> historyIsr = lastCallReceiveIsr.getHistory();	//important: a new history is needed that is consistent with incoming_rx_bIdx
-	if(historyIsr.valid){
-		//historyUpdate.valid is always true
-		double lastIsrSmooth = lastCallReceiveIsr.getLastCall<2>(historyIsr, expectedIsrIntervalCycles);
-		timeSinceLastUSBPaket = toUInt32Range(updateCurrentSmooth - lastIsrSmooth);
+	if(lastCallReceiveIsr.isHistoryValid()){
+		double lastIsrSmooth = lastCallReceiveIsr.getLastCall<2>();
+		timeSinceLastUSBPaket = toInt32Range(updateCurrentSmooth - lastIsrSmooth);
 		timeSinceLastUSBPaket /= F_CPU_ACTUAL; //to seconds
 		if(timeSinceLastUSBPaket > 1.5f*audioPollingIntervalSec || timeSinceLastUSBPaket < -0.5f){
 			//normally this should not happen
@@ -400,8 +398,7 @@ void USBAudioInInterface::update(int16_t& bIdx, uint16_t& noChannels)
 	//update time measurement of update calls
 	uint32_t clockCount = ARM_DWT_CYCCNT;
 	_lastCallUpdate.addCall(clockCount);
-	History<50> historyUpdate = _lastCallUpdate.getHistory();
-	double updateCurrentSmooth= _lastCallUpdate.getLastCall<20>(historyUpdate, blockDuration*F_CPU_ACTUAL);	
+	double updateCurrentSmooth= _lastCallUpdate.getLastCall<20>();
 	//=======================================
 
 	//get all information related to the USB receive ISR
@@ -423,7 +420,9 @@ void USBAudioInInterface::update(int16_t& bIdx, uint16_t& noChannels)
 	if(_streaming && !f){
 		//the stream just stopped -> reset
 		_streaming=false;
-		lastCallReceiveIsr.reset(expectedIsrIntervalCycles);
+	__disable_irq();
+		lastCallReceiveIsr.resetHistory();
+	__enable_irq();
 		sumDiff = 0.;
 		feedback_accumulator = feedback_accumulator_default;
 	}
@@ -461,8 +460,8 @@ void USBAudioInInterface::update(int16_t& bIdx, uint16_t& noChannels)
 	// Important: first compute the buffered samples before the block transmission and update of transmit_rx_bIdx below!!
 	if (_streaming) {
 		//we compute the mismatch of the the targeted number of buffered samples and the actual buffered samples
-		float lastIsrSmooth = (float)lastCallReceiveIsr.getLastCall<2>(historyIsr, expectedIsrIntervalCycles);
-		float timeSinceLastIsr = (float)toUInt32Range(updateCurrentSmooth - lastIsrSmooth);			
+		float lastIsrSmooth = (float)lastCallReceiveIsr.getLastCall<2>(historyIsr);
+		float timeSinceLastIsr = (float)toInt32Range(updateCurrentSmooth - lastIsrSmooth);			
 		timeSinceLastIsr /= F_CPU_ACTUAL; //to seconds
 		
 		_bufferedSamples= getNumBufferedRxSamples(iIdx, transmit_rx_bIdx, ic);
@@ -733,8 +732,7 @@ void USBAudioOutInterface::update(int16_t& bIdx, uint16_t& noChannels)
 	//update time measurement of update calls
 	uint32_t t = ARM_DWT_CYCCNT;
 	_lastCallUpdate.addCall(t);
-	History<50> historyUpdate = _lastCallUpdate.getHistory();	
-	_updateCurrentSmoothPending= _lastCallUpdate.getLastCall<20>(historyUpdate, blockDuration*F_CPU_ACTUAL);
+	_updateCurrentSmoothPending= _lastCallUpdate.getLastCall<20>();
 	//=======================================
 	
 	__disable_irq();
@@ -834,9 +832,8 @@ unsigned int usb_audio_transmit_callback(void)
 	float virtualSamples =0.f;
 	if(USBAudioOutInterface::updateCurrentSmooth !=-1.){
 		
-		History<7> historyIsr = lastCallTransmitIsr.getHistory();
-		float lastIsrSmooth = (float)lastCallTransmitIsr.getLastCall<2>(historyIsr, expectedIsrIntervalCycles);
-		float timeSinceLastUpdate = (float)toUInt32Range(lastIsrSmooth - USBAudioOutInterface::updateCurrentSmooth);
+		float lastIsrSmooth = (float)lastCallTransmitIsr.getLastCall<2>();
+		float timeSinceLastUpdate = (float)toInt32Range(lastIsrSmooth - USBAudioOutInterface::updateCurrentSmooth);
 		timeSinceLastUpdate /= F_CPU_ACTUAL; //to seconds
 		if (timeSinceLastUpdate > 1.5f*USBAudioOutInterface::blockDuration || timeSinceLastUpdate < -0.5f*USBAudioOutInterface::blockDuration){
 			//something really went wrong since update is normally called eveey blockDuration seconds
