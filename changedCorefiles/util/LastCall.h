@@ -223,7 +223,6 @@ class LastCall
             constexpr int32_t NSigned = int32_t(N);
 
             int32_t idx= decrement<NSigned>(h.currentWriteIndex);
-            double lastSample=double(h.data[idx] + h.comOffset);
             if (h.state[h.currentWriteIndex] ==-1){
                 //h is not completely filled and the algorithm can't work properly -> we just return the latest value
                 return double(h.data[idx] + h.comOffset);

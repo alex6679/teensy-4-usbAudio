@@ -232,7 +232,6 @@ void USBAudioInInterface::begin(){
 	receive_flag = 0;
 	_streaming=false;
 	_lastCallUpdate.reset(blockDuration*F_CPU_ACTUAL);
-	lastCallReceiveIsr.reset(expectedIsrIntervalCycles);
 	__enable_irq();
 
 }
@@ -682,7 +681,6 @@ void USBAudioOutInterface::begin(){
 		return;
 	}
 	outgoing_count = 0;
-	lastCallTransmitIsr.reset(expectedIsrIntervalCycles);		
 	_lastCallUpdate.reset(blockDuration*F_CPU_ACTUAL);
 	USBAudioOutInterface::running=true;
 	bufferedTxSamplesSmooth=0;
@@ -945,6 +943,7 @@ void usb_audio_configure(void)
 	tx_event(NULL);
 	expectedIsrIntervalCycles = audioPollingIntervalSec *F_CPU_ACTUAL;
 	lastCallReceiveIsr.reset(expectedIsrIntervalCycles);
+	lastCallTransmitIsr.reset(expectedIsrIntervalCycles);		
 
 	//AudioOutputUSB	==============================
 	resetStatusCounter();
