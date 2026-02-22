@@ -91,6 +91,9 @@ void loop() {
     Serial.println(status.num_send_one_less);
     Serial.print("max memory: ");
     Serial.println((AudioMemoryUsageMax()));
+    Serial.print("Processor usage: ");
+    Serial.println(usb1.processorUsage());
+    Serial.println();
     delay(1000);
     digitalWrite(ledPin, HIGH);   // set the LED on
     delay(1000);                  // wait for a second

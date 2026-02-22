@@ -90,20 +90,16 @@ class LastCall
             resetHistory();
         }
 
-        void updateExpectedTimeStep(double expectedTimeStep) { 
-            if(expectedTimeStep == _expectedTimeStep){
-                //nothing to do
-                return;
+        void updateExpectedTimeStep(double expectedTimeStep, bool setBoundary=true) { 
+            if (setBoundary){
+                _boundaryFraction= uint32_t(UINT32_MAX- (3.*expectedTimeStep*N))/N; //3. is the safety factor
+                _boundary= _boundaryFraction*N;  //boundary % N ==0 is handy because we then don't need to update the reminders
             }
-            _expectedTimeStep = expectedTimeStep;
-            _boundaryFraction= uint32_t(UINT32_MAX- (3.*expectedTimeStep*N))/N; //3. is the safety factor
-            _boundary= _boundaryFraction*N;  //boundary % N ==0 is handy because we then don't need to update the reminders
-            
             //make the perfect sequence
             _comPerfect.q=0;
             _comPerfect.r=0;
             for (uint32_t i =0; i< N; i++){
-                _dataPerfect[i] = uint32_t(i*_expectedTimeStep+0.5);
+                _dataPerfect[i] = uint32_t(i*expectedTimeStep+0.5);
                 _dataPerfectQR[i] = getQR<N>(_dataPerfect[i]);
                 add<N>(_comPerfect, _dataPerfectQR[i], _comPerfect);
             }
@@ -331,8 +327,7 @@ class LastCall
         }
     private:
        
-        History<N> _history;
-        double _expectedTimeStep=-1.;   //only used to initialize _history once    
+        History<N> _history;  
         uint32_t _boundaryFraction;
         uint32_t _boundary;   
         
